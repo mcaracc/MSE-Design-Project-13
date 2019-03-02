@@ -1,3 +1,25 @@
+//Port allocations 
+/* 
+const int (insert sensor / motor here) = 2;   
+const int (insert sensor / motor here) = 3;  
+const int (insert sensor / motor here) = 4;
+const int (insert sensor / motor here) = 5;
+const int (insert sensor / motor here) = 6;
+const int (insert sensor / motor here) = 7;
+const int ci_Mode_Button = 7;
+const int (insert sensor / motor here) = 8;
+const int (insert sensor / motor here) = 9;
+const int (insert sensor / motor here) = 10;
+const int (insert sensor / motor here) = 11;
+const int (insert sensor / motor here) = 12;
+const int (insert sensor / motor here) = A0;
+const int (insert sensor / motor here) = A1;
+const int (insert sensor / motor here) = A2;
+const int (insert sensor / motor here) = A3;
+const int (insert sensor / motor here) = A4;         
+const int (insert sensor / motor here) = A5; 
+*/
+
 void setup()
 {
 
