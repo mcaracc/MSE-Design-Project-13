@@ -23,9 +23,13 @@ const int (insert sensor / motor here) = A5;
 void setup()
 {
 
+//insert code here
+
 }
 
 void loop()
 {
+
+//insert code here
 
 }
