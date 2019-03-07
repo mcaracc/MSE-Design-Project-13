@@ -1,5 +1,5 @@
 /*
-
+//2nd ultrasonic sensor is attached at: D4 (input) and D5 (output)
  MSE 2202 MSEBot base code for Labs 3 and 4
  Language: Arduino
  Authors: Michael Naish and Eugen Porter
