@@ -1,35 +1,133 @@
-//Port allocations 
-/* 
-const int (insert sensor / motor here) = 2;   
-const int (insert sensor / motor here) = 3;  
-const int (insert sensor / motor here) = 4;
-const int (insert sensor / motor here) = 5;
-const int (insert sensor / motor here) = 6;
-const int (insert sensor / motor here) = 7;
+
+#include <Servo.h>
+#include <EEPROM.h>
+#include <Wire.h>
+#include <CharliePlexM.h>
+
+Servo servo_RightMotor;
+Servo servo_LeftMotor;
+Servo servo_SweeperMotor;
+
+//port pin constants
+const int UltrasonicPing1 = 2;   //front-facing input plug
+const int UltrasonicData1 = 3;   //front-facing output plug
+const int ci_Charlieplex_LED1 = 4;
+const int ci_Charlieplex_LED2 = 5;
+const int ci_Charlieplex_LED3 = 6;
+const int ci_Charlieplex_LED4 = 7;
 const int ci_Mode_Button = 7;
-const int (insert sensor / motor here) = 8;
-const int (insert sensor / motor here) = 9;
-const int (insert sensor / motor here) = 10;
-const int (insert sensor / motor here) = 11;
-const int (insert sensor / motor here) = 12;
-const int (insert sensor / motor here) = A0;
-const int (insert sensor / motor here) = A1;
-const int (insert sensor / motor here) = A2;
-const int (insert sensor / motor here) = A3;
-const int (insert sensor / motor here) = A4;         
-const int (insert sensor / motor here) = A5; 
-*/
+const int pin_RightMotor = 8;
+const int pin_LeftMotor = 9;
+//const int pin_SweeperMotor = 9;
+//const int (insert motor / sensor here) = 10;
+//const int (insert motor / sensor here) = 11;
+const int ci_Motor_Enable_Switch = 12;
+const int UltrasonicPing2 = A0; //left-facing input plug
+const int UltrasonicData2 = A1; //left-facing output plug
+// const int  (insert motor / sensor here)= A2;
+const int ci_Light_Sensor = A3;
+const int ci_I2C_SDA = A4;         // I2C data = white
+const int ci_I2C_SCL = A5;         // I2C clock = yellow
 
-void setup()
+const int motor_stop=1500;
+
+//variables
+  unsigned long Ultrasonic_Echo;
+  unsigned long ul_3_Second_timer = 0;
+  boolean bt_Do_Once = false;
+  boolean bt_3_S_Time_Up = false;
+  boolean bt_Cal_Initialized = false;
+
+  unsigned int ui_Cal_Count;
+  unsigned int ui_Cal_Cycle;
+
+// Cases
+  unsigned int  Robot_State_Index = 0;
+  unsigned int  mode_Indicator[6] = {
+    0x00,    //B0000000000000000,  //Stop
+    0x00FF,  //B0000000011111111,  //Run
+    0x0F0F,  //B0000111100001111,  //Calibrate line tracker light level
+    0x3333,  //B0011001100110011,  //Calibrate line tracker dark level
+    0xAAAA,  //B1010101010101010,  //Calibrate motors
+    0xFFFF   //B1111111111111111   //Unused
+  };
+
+void Ping()
 {
-
-//insert code here
-
+  //Ping Ultrasonic
+  //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
+  digitalWrite(UltrasonicPing1, HIGH);
+  delayMicroseconds(10);  //The 10 microsecond pause where the pulse in "high"
+  digitalWrite(UltrasonicPing1, LOW);
+  //use command pulseIn to listen to Ultrasonic_Data pin to record the
+  //time that it takes from when the Pin goes HIGH until it goes LOW 
+  Ultrasonic_Echo = pulseIn(UltrasonicPing1, HIGH, 10000);
 }
 
-void loop()
-{
 
-//insert code here
+void setup() 
+{
+  //Set up Front facing ultrasonic sensor
+    pinMode(UltrasonicPing1, OUTPUT);
+    pinMode(UltrasonicData1, INPUT);
+  // Set up Left facing ultrasonic sensor
+    pinMode(UltrasonicPing2, OUTPUT);
+    pinMode(UltrasonicData2, INPUT);
+  // Set up motors
+    pinMode(pin_RightMotor, OUTPUT);
+    servo_RightMotor.attach(pin_RightMotor);
+    pinMode(pin_LeftMotor, OUTPUT);
+    servo_LeftMotor.attach(pin_LeftMotor);
+    //pinMode(pin_SweeperMotor, OUTPUT)
+    //servo_SweeperMotor.attatch(pin_SweeperMotor);
+
+  // Button-based mode selection
+    if(CharliePlexM::ui_Btn)
+    {
+      if(bt_Do_Once == false)
+      {
+        bt_Do_Once = true;
+        Robot_State_Index++;
+        Robot_State_Index = Robot_State_Index & 7;
+        ul_3_Second_timer = millis();
+        bt_3_S_Time_Up = false;
+        bt_Cal_Initialized = false;
+        ui_Cal_Cycle = 0;
+      }
+    }
+    else
+    {
+      bt_Do_Once = LOW;
+    }
+}
+
+void loop() 
+{
+  
+//  servo_RightMotor.writeMicroseconds(1600);
+//  servo_LeftMotor.writeMicroseconds(1600);
+//  Ping ();
+  
+  switch (Robot_State_Index)
+  {
+    case 0: // Robot Stoppoed
+    {
+      servo_RightMotor.writeMicroseconds(motor_stop);
+      servo_LeftMotor.writeMicroseconds(motor_stop);
+      //servo_SweeperMotor.writeMicroseconds(motor_stop);
+
+      break;
+    }
+  
+    case 1: 
+    {
+  
+      servo_RightMotor.writeMicroseconds(1600);
+      servo_LeftMotor.writeMicroseconds(1600);
+      break;
+    }
+  
+  
+  }
 
 }
