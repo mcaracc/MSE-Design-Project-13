@@ -1,1 +1,92 @@
 
+#include <Servo.h>
+#include <EEPROM.h>
+#include <Wire.h>
+
+Servo servo_RightMotor;
+Servo servo_LeftMotor;
+
+//port pin constants
+const int UltrasonicPing1 = 2;   //front-facing input plug
+const int UltrasonicData1 = 3;   //front-facing output plug
+const int ci_Charlieplex_LED1 = 4;
+const int ci_Charlieplex_LED2 = 5;
+const int ci_Charlieplex_LED3 = 6;
+const int ci_Charlieplex_LED4 = 7;
+const int ci_Mode_Button = 7;
+const int RightMotor = 8;
+const int LeftMotor = 9;
+//const int (insert motor / sensor here) = 10;
+//const int (insert motor / sensor here) = 11;
+const int ci_Motor_Enable_Switch = 12;
+const int UltrasonicPing2 = A0; //left-facing input plug
+const int UltrasonicData2 = A1; //left-facing output plug
+// const int  (insert motor / sensor here)= A2;
+const int ci_Light_Sensor = A3;
+const int ci_I2C_SDA = A4;         // I2C data = white
+const int ci_I2C_SCL = A5;         // I2C clock = yellow
+
+unsigned int  Run_Robot = 0;
+unsigned long 
+
+const int motor_stop=1500;
+
+
+void Ping()
+{
+  //Ping Ultrasonic
+  //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
+  digitalWrite(ci_Ultrasonic_Ping, HIGH);
+  delayMicroseconds(10);  //The 10 microsecond pause where the pulse in "high"
+  digitalWrite(ci_Ultrasonic_Ping, LOW);
+  //use command pulseIn to listen to Ultrasonic_Data pin to record the
+  //time that it takes from when the Pin goes HIGH until it goes LOW 
+  ultrasonic = pulseIn(ci_Ultrasonic_Data, HIGH, 10000);
+
+
+void setup() {
+  //Set up Front facing ultrasonic sensor
+ pinMode(UltrasonicPing1, OUTPUT);
+  pinMode(UltrasonicData1, INPUT);
+
+  // Set up Left facing ultrasonic sensor
+   pinMode(UltrasonicPing2, OUTPUT);
+  pinMode(UltrasonicData2, INPUT);
+//set up motors
+ pinMode(RightMotor, OUTPUT);
+ servo_RightMotor.attach(RightMotor);
+  
+ pinMode(LeftMotor, OUTPUT);
+ servo_LeftMotor.attach(LeftMotor);
+  
+}
+
+void loop() {
+  
+servo_RightMotor.writeMicroseconds(1600);
+servo_LeftMotor.writeMicroseconds(1600);
+Ping ();
+
+
+
+/*switch (Run_Robot)
+{
+  case 0: 
+  {
+servo_RightMotor.writeMicroseconds(motor_stop);
+servo_LeftMotor.writeMicroseconds(motor_stop);
+  }
+
+  case 1: 
+  {
+
+servo_RightMotor.writeMicroseconds(1600);
+servo_LeftMotor.writeMicroseconds(1600);
+  
+  }
+
+
+}
+*/
+
+}
