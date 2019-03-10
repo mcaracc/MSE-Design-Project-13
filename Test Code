@@ -1,7 +1,3 @@
-#include <Servo.h>
-#include <EEPROM.h>
-#include <Wire.h>
-
 Servo servo_RightMotor;
 Servo servo_LeftMotor;
 
@@ -28,9 +24,6 @@ const int ci_I2C_SCL = A5;         // I2C clock = yellow
 unsigned int  Run_Robot = 0;
 unsigned long ultrasonic1;
 unsigned long ultrasonic2;
-
-unsigned long ultrasonic1cm = ultrasonic1/58;
-unsigned long ultrasonic2cm = ultrasonic2/58;
 
 unsigned long currentMillis;
 unsigned long startVal;
@@ -93,26 +86,28 @@ void loop()
 Ping1 ();
 Ping2 (); 
 Serial.print("cm1: ");
-Serial.print(ultrasonic1cm);
+Serial.print(ultrasonic1/58);
+Serial.print ("\n");
 Serial.print("cm2: ");
-Serial.print(ultrasonic2cm);
+Serial.print(ultrasonic2/58); 
+Serial.print ("\n");
 
 // ultrasonic1 is front facing, ultrasonic2 is left facing
-if (ultrasonic1cm > 3 && ultrasonic2cm > 3) //no objects nearby, drive straight 
+if ( ultrasonic1/58 > 3 && ultrasonic2/58 > 3) //no objects nearby, drive straight 
 {
   servo_RightMotor.writeMicroseconds(1600);
   servo_LeftMotor.writeMicroseconds(1600);
-  Serial.print("1");
+//  Serial.print("0");
  
 }
 
-else if (ultrasonic1cm < 3  && ultrasonic2cm > 3) //object in front, NO object on left, back up turn left
+else if ( 1 <= ultrasonic1/58 <= 3  && ultrasonic2/58 > 3) //object in front, NO object on left, back up turn left
 {
         servo_LeftMotor.writeMicroseconds(1500); //stop
         servo_RightMotor.writeMicroseconds(1500); 
         T=true; 
         M = true;
-        Serial.print("2");
+//        Serial.print("1");
 }
       if (T == true)
          {
@@ -128,22 +123,22 @@ else if (ultrasonic1cm < 3  && ultrasonic2cm > 3) //object in front, NO object o
             {
             servo_RightMotor.writeMicroseconds(1400); //back up slightly 
             servo_LeftMotor.writeMicroseconds(1400);
-            Serial.print("3");
+//            Serial.print("2");
             }
             else if((currentMillis-startVal)> 1000 && (currentMillis-startVal) < 2000) 
             {
              servo_RightMotor.writeMicroseconds(1700); //turn left
              servo_LeftMotor.writeMicroseconds(1500);
-             Serial.print("3");
+//             Serial.print("3");
              M=true;
             }
 }
 
-else if (ultrasonic1cm < 3  && ultrasonic2cm < 3)//object in front, AND object on left, back up turn right
+else if (1 <= ultrasonic1/58 <= 3  && 1 <= ultrasonic2/58 <= 3)//object in front, AND object on left, back up turn right
 {
    servo_LeftMotor.writeMicroseconds(1500); //stop
    servo_RightMotor.writeMicroseconds(1500);
-   Serial.print("4"); 
+//   Serial.print("4"); 
    F = true; 
    G = true;
 }
@@ -161,14 +156,14 @@ else if (ultrasonic1cm < 3  && ultrasonic2cm < 3)//object in front, AND object o
             {
               servo_RightMotor.writeMicroseconds(1400); //back up slightly 
               servo_LeftMotor.writeMicroseconds(1400);
-              Serial.print("5");
+//              Serial.print("5");
             }
             else if((currentMillis-startVal)> 1000 && (currentMillis-startVal) < 2000) 
             {
              servo_RightMotor.writeMicroseconds(1500); //turn right
              servo_LeftMotor.writeMicroseconds(1700);
              G=true;
-             Serial.print("6");
+//             Serial.print("6");
             }
 }
 
