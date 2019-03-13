@@ -8,6 +8,7 @@
 Servo servo_RightMotor;
 Servo servo_LeftMotor;
 Servo servo_SweeperMotor;
+Servo servo_ScooperMotor;
 
 I2CEncoder encoder_RightMotor;
 I2CEncoder encoder_LeftMotor;
@@ -37,7 +38,7 @@ const int ci_Left_Motor = 9;
 const int ci_Motor_Enable_Switch = 12;
 const int Ultrasonic_Ping2 = A0;
 const int Ultrasonic_Data2 = A1;
-// const int  (insert motor / sensor here)= A2;
+const int ci_Scooper_Motor = A2;
 const int ci_Light_Sensor = A3;
 const int ci_I2C_SDA = A4;         // I2C data = white
 const int ci_I2C_SCL = A5;         // I2C clock = yellow
@@ -62,6 +63,10 @@ const int ci_Right_Motor_Offset_Address_H = 15;
 
 const int ci_Left_Motor_Stop = 1500;        // 200 for brake mode; 1500 for stop
 const int ci_Right_Motor_Stop = 1500;
+
+const int ci_Scooper_Motor_Up = 140;
+const int ci_Scooper_Motor_Down = 20;
+
 const int ci_Display_Time = 500;
 const int ci_Motor_Calibration_Cycles = 3;
 const int ci_Motor_Calibration_Time = 5000;
@@ -137,8 +142,9 @@ void setup()
     pinMode(ci_Left_Motor, OUTPUT);
     servo_LeftMotor.attach(ci_Left_Motor);
 
-  // set up motor enable switch
-    pinMode(ci_Motor_Enable_Switch, INPUT);
+  // set up scooper motor
+ pinMode(ci_Scooper_Motor, OUTPUT);
+servo_ScooperMotor.attach(ci_Scooper_Motor);
 
   // set up encoders. Must be initialized in order that they are chained together, 
   // starting with the encoder directly connected to the Arduino
@@ -285,6 +291,11 @@ void loop()
     }  
     case 2:    //Calibrate line tracker light levels after 3 seconds
     {
+        servo_ScooperMotor.write(ci_Scooper_Motor_Up);
+        delay (5000);
+        servo_ScooperMotor.write(ci_Scooper_Motor_Down);
+        delay (5000);
+        
       ui_Mode_Indicator_Index = 2; 
       break;
     }
