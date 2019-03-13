@@ -117,6 +117,7 @@ boolean bt_Cal_Initialized = false;
   bool M = true;
   bool F = false;
   bool G = false;
+  bool A = true;
 
 unsigned long currentMillis;
 unsigned long startVal;
@@ -197,6 +198,7 @@ void loop()
   // 2 = Press mode button twice to enter. Calibrate line tracker light level.
   // 3 = Press mode button three times to enter. Calibrate line tracker dark level.
   // 4 = Press mode button four times to enter. Calibrate motor speeds to drive straight.
+  
   switch(ui_Robot_State_Index)
   {
     case 0:    //Robot stopped
@@ -218,17 +220,17 @@ void loop()
       {
         Ping1();
         Ping2();
-//        Serial.print("Ultrasonic 1: ");
-//        Serial.print(ultrasonic1/58);
-//        Serial.print('\n');
-//        Serial.print("Ultrasonic 2: ");
-//        Serial.print(ultrasonic2/58);
-//        Serial.print('\n');
-        if ( ultrasonic1/58 > 8 && ultrasonic2/58 > 8) //no objects nearby, drive straight 
+        Serial.print("Ultrasonic 1: ");
+        Serial.print(ultrasonic1/58);
+        Serial.print('\n');
+        Serial.print("Ultrasonic 2: ");
+        Serial.print(ultrasonic2/58);
+        Serial.print('\n');
+        if ( ultrasonic1/58 > 8 && ultrasonic2/58 > 8 && A == true) //no objects nearby, drive straight 
         {
           servo_RightMotor.writeMicroseconds(1800);
           servo_LeftMotor.writeMicroseconds(1800);
-
+Serial.print('\n');
           Serial.print ("1");
           Serial.print('\n');
         }
@@ -248,43 +250,45 @@ void loop()
         else if (ultrasonic1/58 < 8  && ultrasonic2/58 > 8) //object in front, NO object on left, back up turn left
         {
           servo_LeftMotor.writeMicroseconds(1500); //stop
-          servo_RightMotor.writeMicroseconds(1500); 
-          T = true; 
+          servo_RightMotor.writeMicroseconds(1500);
           Serial.print ("2");
-          Serial.print('\n');
+          Serial.print('\n'); 
+          T = true; 
+          A = false;
+        }
           if (T == true)
             {
               currentMillis = millis();
-              Serial.print ("Millis: ");
-              Serial.print (currentMillis);
-              Serial.print('\n');
+//              Serial.print ("Millis: ");
+//              Serial.print (currentMillis);
+//              Serial.print('\n');
               if(M == true)
               {
                  startVal = currentMillis;
                  M=false;
               }
-              if((currentMillis-startVal) < 500) 
+              if((currentMillis-startVal) < 400) 
               {
                 servo_RightMotor.writeMicroseconds(1400); //back up slightly 
                 servo_LeftMotor.writeMicroseconds(1400);
                 Serial.print("3");
                 Serial.print('\n');
               }
-              else if((currentMillis-startVal)> 500 && (currentMillis-startVal) < 2000) 
+              else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 1500) 
               {
                 servo_RightMotor.writeMicroseconds(1600); //turn left
                 servo_LeftMotor.writeMicroseconds(1500);
                 Serial.print("4");
                 Serial.print('\n');
                 M = true;
-                T = false; 
+                A = true;
                }
                else
-               {
+               {  
+               T = false; 
                   break;
                } 
             } 
-        }
         ui_Mode_Indicator_Index = 1;
       }
       break;
