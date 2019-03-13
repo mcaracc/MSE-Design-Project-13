@@ -118,6 +118,7 @@ boolean bt_Cal_Initialized = false;
   bool F = false;
   bool G = false;
   bool A = true;
+  bool B = true;
 
 unsigned long currentMillis;
 unsigned long startVal;
@@ -226,7 +227,7 @@ void loop()
         Serial.print("Ultrasonic 2: ");
         Serial.print(ultrasonic2/58);
         Serial.print('\n');
-        if ( ultrasonic1/58 > 8 && ultrasonic2/58 > 8 && A == true) //Case 1: no objects nearby, drive straight 
+        if ( (ultrasonic1/58 > 8) && (ultrasonic2/58 > 8) && A == true) //Case 1: no objects nearby, drive straight 
         {
           servo_RightMotor.writeMicroseconds(1800);
           servo_LeftMotor.writeMicroseconds(1800);
@@ -234,20 +235,7 @@ void loop()
           Serial.print ("1");
           Serial.print('\n');
         }
-/*      else if (ultrasonic1/58 < 5  && ultrasonic2/58 > 5) //object in front, NO object on left, back up turn left
-         {
-          servo_RightMotor.writeMicroseconds(1500); //stop
-          servo_LeftMotor.writeMicroseconds(1500);
-          delay (100);
-          servo_RightMotor.writeMicroseconds(1400); //back up
-          servo_LeftMotor.writeMicroseconds(1400);
-          delay (500);
-          servo_RightMotor.writeMicroseconds(1500); //turn left
-          servo_LeftMotor.writeMicroseconds(1600);
-          delay (1000);
-         }
-         */
-        else if (ultrasonic1/58 < 8  && ultrasonic2/58 > 8) //Case 2: object in front, NO object on left, back up turn left
+        else if ( ((ultrasonic1/58) <= 8 && (ultrasonic1/58) > 1)  && ((ultrasonic2/58) > 8) && B == true) //Case 2: object in front, NO object on left, back up turn left
         {
           servo_LeftMotor.writeMicroseconds(1500); //stop
           servo_RightMotor.writeMicroseconds(1500);
@@ -255,50 +243,55 @@ void loop()
           Serial.print('\n'); 
           T = true; 
           A = false;
+          B = false;
         }
           if (T == true)
-            {
+          {
             currentMillis = millis();
             //Serial.print ("Millis: ");
             //Serial.print (currentMillis);
             //Serial.print('\n')
-            if(M == true) // start timer
-            {
-              startVal = currentMillis;
-              M=false;
-            }
-            if((currentMillis-startVal) < 400) //Case 2a: back up slightly after .4 seconds
-            {
-                servo_RightMotor.writeMicroseconds(1400);
-                servo_LeftMotor.writeMicroseconds(1400);
-                Serial.print("2a");
-                Serial.print('\n');
-            }
-            else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 1500)// Case 2b: turn left
-            {
-              servo_RightMotor.writeMicroseconds(1600);
-              servo_LeftMotor.writeMicroseconds(1500);
-              Serial.print("2b");
-              Serial.print('\n');
-              M = true;
-              A = true;
-             }
-             else
-             {  
-               T = false; 
-               break;
-             } 
-            } 
-      ui_Mode_Indicator_Index = 1;
+              if(M == true) // start timer
+              {
+                startVal = currentMillis;
+                M = false;
+              }
+              if (M == false)
+              {
+                  if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
+                  {
+                    servo_RightMotor.writeMicroseconds(1400);
+                    servo_LeftMotor.writeMicroseconds(1400);
+                    Serial.print("3");
+                    Serial.print('\n');
+                  }
+                  else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 2000)//turn left
+                  {
+                    servo_RightMotor.writeMicroseconds(1700);
+                    servo_LeftMotor.writeMicroseconds(1500);
+                    Serial.print("4");
+                    Serial.print('\n');
+                  }
+                  else if((currentMillis-startVal) > 1500)
+                  {
+                    A = true;
+                    M = true;
+                    T = false;
+                    B = true;
+                  }
+              }
+           }
+            
+        ui_Mode_Indicator_Index = 1;
       }
       break;
     }  
     case 2:
     {
-        servo_ScooperMotor.write(ci_Scooper_Motor_Up);
-        delay (5000);
         servo_ScooperMotor.write(ci_Scooper_Motor_Down);
-        delay (5000);
+        delay (2000);
+         servo_ScooperMotor.write(ci_Scooper_Motor_Up);
+        delay (2000);
         
       ui_Mode_Indicator_Index = 2; 
       break;
