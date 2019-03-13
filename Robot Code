@@ -201,7 +201,7 @@ void loop()
   
   switch(ui_Robot_State_Index)
   {
-    case 0:    //Robot stopped
+    case 0: //Robot stopped
     {
       Serial.print("nothing...");
       Serial.print('\n');
@@ -214,7 +214,7 @@ void loop()
       break;
     } 
   
-    case 1:    //Robot Run after 3 seconds
+    case 1:  //Robot Run after 3 seconds
     {
       if(bt_3_S_Time_Up)
       {
@@ -226,15 +226,15 @@ void loop()
         Serial.print("Ultrasonic 2: ");
         Serial.print(ultrasonic2/58);
         Serial.print('\n');
-        if ( ultrasonic1/58 > 8 && ultrasonic2/58 > 8 && A == true) //no objects nearby, drive straight 
+        if ( ultrasonic1/58 > 8 && ultrasonic2/58 > 8 && A == true) //Case 1: no objects nearby, drive straight 
         {
           servo_RightMotor.writeMicroseconds(1800);
           servo_LeftMotor.writeMicroseconds(1800);
-Serial.print('\n');
+          Serial.print('\n');
           Serial.print ("1");
           Serial.print('\n');
         }
-/*        else if (ultrasonic1/58 < 5  && ultrasonic2/58 > 5) //object in front, NO object on left, back up turn left
+/*      else if (ultrasonic1/58 < 5  && ultrasonic2/58 > 5) //object in front, NO object on left, back up turn left
          {
           servo_RightMotor.writeMicroseconds(1500); //stop
           servo_LeftMotor.writeMicroseconds(1500);
@@ -247,7 +247,7 @@ Serial.print('\n');
           delay (1000);
          }
          */
-        else if (ultrasonic1/58 < 8  && ultrasonic2/58 > 8) //object in front, NO object on left, back up turn left
+        else if (ultrasonic1/58 < 8  && ultrasonic2/58 > 8) //Case 2: object in front, NO object on left, back up turn left
         {
           servo_LeftMotor.writeMicroseconds(1500); //stop
           servo_RightMotor.writeMicroseconds(1500);
@@ -258,42 +258,42 @@ Serial.print('\n');
         }
           if (T == true)
             {
-              currentMillis = millis();
-//              Serial.print ("Millis: ");
-//              Serial.print (currentMillis);
-//              Serial.print('\n');
-              if(M == true)
-              {
-                 startVal = currentMillis;
-                 M=false;
-              }
-              if((currentMillis-startVal) < 400) 
-              {
-                servo_RightMotor.writeMicroseconds(1400); //back up slightly 
+            currentMillis = millis();
+            //Serial.print ("Millis: ");
+            //Serial.print (currentMillis);
+            //Serial.print('\n')
+            if(M == true) // start timer
+            {
+              startVal = currentMillis;
+              M=false;
+            }
+            if((currentMillis-startVal) < 400) //Case 2a: back up slightly after .4 seconds
+            {
+                servo_RightMotor.writeMicroseconds(1400);
                 servo_LeftMotor.writeMicroseconds(1400);
-                Serial.print("3");
+                Serial.print("2a");
                 Serial.print('\n');
-              }
-              else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 1500) 
-              {
-                servo_RightMotor.writeMicroseconds(1600); //turn left
-                servo_LeftMotor.writeMicroseconds(1500);
-                Serial.print("4");
-                Serial.print('\n');
-                M = true;
-                A = true;
-               }
-               else
-               {  
+            }
+            else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 1500)// Case 2b: turn left
+            {
+              servo_RightMotor.writeMicroseconds(1600);
+              servo_LeftMotor.writeMicroseconds(1500);
+              Serial.print("2b");
+              Serial.print('\n');
+              M = true;
+              A = true;
+             }
+             else
+             {  
                T = false; 
-                  break;
-               } 
+               break;
+             } 
             } 
-        ui_Mode_Indicator_Index = 1;
+      ui_Mode_Indicator_Index = 1;
       }
       break;
     }  
-    case 2:    //Calibrate line tracker light levels after 3 seconds
+    case 2:
     {
         servo_ScooperMotor.write(ci_Scooper_Motor_Up);
         delay (5000);
@@ -304,7 +304,7 @@ Serial.print('\n');
       break;
     }
     
-    case 3:    // Calibrate line tracker dark levels after 3 seconds
+    case 3:
     {
       ui_Mode_Indicator_Index = 3;
       break;
