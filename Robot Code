@@ -33,9 +33,10 @@ const int ci_Charlieplex_LED4 = 7;
 const int ci_Mode_Button = 7;
 const int ci_Right_Motor = 8;
 const int ci_Left_Motor = 9;
-//const int (insert motor / sensor here) = 10;
-//const int (insert motor / sensor here) = 11
+const int Ultrasonic_Ping3 = 10; //input plug
+const int Ultrasonic_Data3 = 11; //output plug
 const int ci_Motor_Enable_Switch = 12;
+//const int (insert motor / sensor here) = 13;
 const int Ultrasonic_Ping2 = A0;
 const int Ultrasonic_Data2 = A1;
 const int ci_Scooper_Motor = A2;
@@ -45,6 +46,7 @@ const int ci_I2C_SCL = A5;         // I2C clock = yellow
 
 unsigned long ultrasonic1;
 unsigned long ultrasonic2;
+unsigned long ultrasonic3;
 
 // Charlieplexing LED assignments
 const int ci_Heartbeat_LED = 1;
@@ -77,8 +79,8 @@ byte b_HighByte;
 unsigned int ui_Motors_Speed = 1900;        // Default run speed
 unsigned int ui_Left_Motor_Speed;
 unsigned int ui_Right_Motor_Speed;
-long l_Left_Motor_Position;
-long l_Right_Motor_Position;
+int Left_Motor_Position;
+int Right_Motor_Position;
 
 unsigned long ul_3_Second_timer = 0;
 unsigned long ul_Display_Time;
@@ -113,13 +115,48 @@ boolean bt_Do_Once = false;
 boolean bt_Cal_Initialized = false;
 
 //flags
-  bool T = false;
-  bool M = true;
-  bool F = false;
-  bool G = false;
+  bool flag_1 = true; 
+  
+  bool flag_2A = true; 
+  bool flag_2B = false; 
+  bool flag_2C = true; 
+  
+  bool flag_3A = true; 
+  bool flag_3B = false; 
+  bool flag_3C = true; 
+
+  bool flag_4A = true;
+  bool flag_4B = false; 
+  bool flag_4C = true; 
+
+  bool flag_5A = true;
+  bool flag_5B = false; 
+  bool flag_5C = true; 
+
+  bool flag_6A = true;
+  bool flag_6B = false; 
+  bool flag_6C = true; 
+
+  bool flag_7A = true;
+  bool flag_7B = false; 
+  bool flag_7C = true; 
+
+  bool flag_8A = true;
+  bool flag_8B = false; 
+  bool flag_8C = true; 
+  
   bool A = true;
   bool B = true;
 
+ long x, y;
+ bool N = true;
+ bool S = false;
+ bool E = false;
+ bool West = false;
+ bool NW = false;
+ bool NE = false;
+ bool SW = false;
+ bool SEa = false;
 unsigned long currentMillis;
 unsigned long startVal;
 
@@ -137,6 +174,9 @@ void setup()
   // Set up Left facing ultrasonic sensor
     pinMode(Ultrasonic_Ping2, OUTPUT);
     pinMode(Ultrasonic_Data2, INPUT);
+  // Set up Right facing ultrasonic sensor
+    pinMode (Ultrasonic_Ping3, OUTPUT);
+    pinMode (Ultrasonic_Data3, INPUT);
 
   // set up drive motors
     pinMode(ci_Right_Motor, OUTPUT);
@@ -204,14 +244,34 @@ void loop()
   {
     case 0: //Robot stopped
     {
-      Serial.print("nothing...");
+//      Serial.print("nothing...");
+//      Serial.print('\n');
+      Serial.print(" Ultrasonic 1: ");
+      Serial.print(ultrasonic1/58);
       Serial.print('\n');
+      Serial.print(" Ultrasonic 2: ");
+      Serial.print(ultrasonic2/58);
+      Serial.print('\n');
+      Serial.print(" Ultrasonic 3: ");
+      Serial.print(ultrasonic3/58);
+      Serial.print('\n');
+      
       Ping1();
-      servo_LeftMotor.writeMicroseconds(ci_Left_Motor_Stop); 
-      servo_RightMotor.writeMicroseconds(ci_Right_Motor_Stop);
+      Ping2();
+      Ping3();
+      servo_LeftMotor.writeMicroseconds(1500); 
+      servo_RightMotor.writeMicroseconds(1500);
       ui_Mode_Indicator_Index = 0;
       encoder_LeftMotor.zero();
       encoder_RightMotor.zero();
+      
+//      Right_Motor_Position = encoder_LeftMotor.getRawPosition();
+//      Left_Motor_Position = encoder_RightMotor.getRawPosition();
+//      Serial.print("Encoders L: ");
+//      Serial.print(Left_Motor_Position);
+//      Serial.print(", R: ");
+//      Serial.println(Right_Motor_Position);
+//      Serial.print('\n');
       break;
     } 
   
@@ -221,65 +281,436 @@ void loop()
       {
         Ping1();
         Ping2();
-        Serial.print("Ultrasonic 1: ");
+        Ping3();
+        Serial.print(" Ultrasonic 1: ");
         Serial.print(ultrasonic1/58);
         Serial.print('\n');
-        Serial.print("Ultrasonic 2: ");
+        Serial.print(" Ultrasonic 2: ");
         Serial.print(ultrasonic2/58);
         Serial.print('\n');
-        if ( (ultrasonic1/58 > 8) && (ultrasonic2/58 > 8) && A == true) //Case 1: no objects nearby, drive straight 
+        Serial.print(" Ultrasonic 3: ");
+        Serial.print(ultrasonic3/58);
+        Serial.print('\n');
+      
+//          Serial.print("Encoders L: ");
+//          Serial.print(Left_Motor_Position);
+//          Serial.print(", R: ");
+//          Serial.println(Right_Motor_Position);
+//          Serial.print('\n');
+          
+        if ( (ultrasonic1/58 > 8) && (ultrasonic2/58 > 8) && (ultrasonic3/58 > 8) && flag_1 == true) //Case 1: no objects nearby, drive straight 
         {
-          servo_RightMotor.writeMicroseconds(1800);
+          A = true;
+          if (A == true)
+          {
+            encoder_LeftMotor.zero();
+            encoder_RightMotor.zero();
+          }
+          Serial.print('\n');
+          Serial.print ("case1");
+          Serial.print('\n');
+
+          servo_RightMotor.writeMicroseconds(1750);
           servo_LeftMotor.writeMicroseconds(1800);
-          Serial.print('\n');
-          Serial.print ("1");
-          Serial.print('\n');
+
+          
+          Right_Motor_Position = encoder_LeftMotor.getRawPosition();
+          Left_Motor_Position = encoder_RightMotor.getRawPosition();
+          
+//          Serial.print("y: ");
+//          Serial.print(y);
+
+          if ( (ultrasonic1/58 > 8) && (ultrasonic2/58 > 8))
+          {
+            y = (Right_Motor_Position+Left_Motor_Position);
+          }
+          
         }
-        else if ( ((ultrasonic1/58) <= 8 && (ultrasonic1/58) > 1)  && ((ultrasonic2/58) > 8) && B == true) //Case 2: object in front, NO object on left, back up turn left
+        else if ( ((ultrasonic1/58) <= 8 && (ultrasonic1/58) > 1)  && ((ultrasonic2/58) <= 8) && ((ultrasonic2/58) > 1) && ((ultrasonic3/58) <= 8) && ((ultrasonic3/58) > 1) && flag_2A == true) //Case 2: object in front, AND object on left, AND object on right. back up turn 180deg
         {
           servo_LeftMotor.writeMicroseconds(1500); //stop
           servo_RightMotor.writeMicroseconds(1500);
-          Serial.print ("2");
+          Serial.print ("case2A");
           Serial.print('\n'); 
-          T = true; 
-          A = false;
-          B = false;
+          flag_1 = false; 
+          flag_2A = false;
+          flag_3A = false;
+          flag_4A = false;
+          flag_5A = false;
+          flag_6A = false;
+          flag_7A = false;
+          flag_8A = false;
+        
+          flag_2B = true; 
+          
+//can use this if robot glitches too much, upload commented out to each case.          
+//          flag_1 = false; 
+//          flag_2A = false;
+//          flag_3A = false;
+//          flag_4A = false;
+//          flag_5A = false;
+//          flag_6A = false;
+//          flag_7A = false;
+//          flag_8A = false;
+
+//          flag_1 = true; 
+//          flag_2A = true;
+//          flag_3A = true;
+//          flag_4A = true;
+//          flag_5A = true;
+//          flag_6A = true;
+//          flag_7A = true;
+//          flag_8A = true;
+
+
+          
         }
-          if (T == true)
+          if (flag_2B == true)
           {
             currentMillis = millis();
             //Serial.print ("Millis: ");
             //Serial.print (currentMillis);
             //Serial.print('\n')
-              if(M == true) // start timer
+              if(flag_2C == true) // start timer
               {
                 startVal = currentMillis;
-                M = false;
+                flag_2C = false;
               }
-              if (M == false)
+              if (flag_2C == false)
+              {
+                  if((currentMillis-startVal) < 700) //back up slightly after .7 seconds
+                  {
+                    servo_RightMotor.writeMicroseconds(1400);
+                    servo_LeftMotor.writeMicroseconds(1400);
+                    Serial.print("case2B");
+                    Serial.print('\n');
+                  }
+                  else if((currentMillis-startVal)> 700 && (currentMillis-startVal) < 1500)//turn 180
+                  {
+                    servo_RightMotor.writeMicroseconds(1700);
+                    servo_LeftMotor.writeMicroseconds(1300);
+                    Serial.print("case2C");
+                    Serial.print('\n');
+                  }
+                  else if((currentMillis-startVal) > 1500)
+                  {
+                    flag_1 = true; 
+                    flag_2A = true;
+                    flag_3A = true;
+                    flag_4A = true;
+                    flag_5A = true;
+                    flag_6A = true;
+                    flag_7A = true;
+                    flag_8A = true;
+
+                    
+                    flag_2B = false;
+                    flag_2C = true;
+                  }
+              }
+           }
+
+ else if ( ((ultrasonic1/58) <= 8 && (ultrasonic1/58) > 1)  && (ultrasonic2/58 > 8) && (ultrasonic3/58 > 8) && flag_3A == true) //Case 3: object in front, no object on left, no object on right. back up, turn left (can be right too)
+        {
+          servo_LeftMotor.writeMicroseconds(1500); //stop
+          servo_RightMotor.writeMicroseconds(1500);
+          Serial.print ("case3A");
+          Serial.print('\n'); 
+          flag_1 = false; 
+          flag_2A = false;
+          flag_3A = false;
+          flag_4A = false;
+          flag_5A = false;
+          flag_6A = false;
+          flag_7A = false;
+          flag_8A = false;
+
+          
+          flag_3B = true; 
+        }
+          if (flag_3B == true)
+          {
+            currentMillis = millis();
+            //Serial.print ("Millis: ");
+            //Serial.print (currentMillis);
+            //Serial.print('\n')
+              if(flag_3C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_3C = false;
+              }
+              if (flag_3C == false)
               {
                   if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
                   {
                     servo_RightMotor.writeMicroseconds(1400);
                     servo_LeftMotor.writeMicroseconds(1400);
-                    Serial.print("3");
+                    Serial.print("case3B");
                     Serial.print('\n');
                   }
                   else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 2000)//turn left
                   {
                     servo_RightMotor.writeMicroseconds(1700);
-                    servo_LeftMotor.writeMicroseconds(1500);
-                    Serial.print("4");
+                    servo_LeftMotor.writeMicroseconds(1500); 
+                    Serial.print("case3C");
                     Serial.print('\n');
                   }
-                  else if((currentMillis-startVal) > 1500)
+                  else if((currentMillis-startVal) > 2000)
                   {
-                    A = true;
-                    M = true;
-                    T = false;
-                    B = true;
+                    flag_1 = true; 
+                    flag_2A = true;
+                    flag_3A = true;
+                    flag_4A = true;
+                    flag_5A = true;
+                    flag_6A = true;
+                    flag_7A = true;
+                    flag_8A = true;
+                    
+                    flag_3B = false;
+                    flag_3C = true;
                   }
               }
+           }
+           
+ else if ( (ultrasonic1/58 > 8) && (ultrasonic2/58 > 8) && ((ultrasonic3/58) <= 8) && ((ultrasonic3/58) > 1) && flag_4A == true) //Case 4: NO object in front, no object on left, AND object on right, turn left 90deg
+        {
+          servo_LeftMotor.writeMicroseconds(1500); //stop
+          servo_RightMotor.writeMicroseconds(1500);
+          Serial.print ("case4A");
+          Serial.print('\n'); 
+          flag_1 = false; 
+          flag_2A = false;
+          flag_3A = false;
+          flag_4A = false;
+          flag_5A = false;
+          flag_6A = false;
+          flag_7A = false;
+          flag_8A = false;
+          
+          flag_4B = true; 
+        }
+          if (flag_4B == true)
+          {
+            currentMillis = millis();
+            //Serial.print ("Millis: ");
+            //Serial.print (currentMillis);
+            //Serial.print('\n')
+              if(flag_4C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_4C = false;
+              }
+              if (flag_4C == false)
+              {
+                  if((currentMillis-startVal) < 500) //turn left 90deg
+                  {
+                    servo_RightMotor.writeMicroseconds(1500);
+                    servo_LeftMotor.writeMicroseconds(1800);
+                    Serial.print("case4B");
+                    Serial.print('\n');
+                  }
+                  else if((currentMillis-startVal) > 500)
+                  {
+                    flag_1 = true; 
+                    flag_2A = true;
+                    flag_3A = true;
+                    flag_4A = true;
+                    flag_5A = true;
+                    flag_6A = true;
+                    flag_7A = true;
+                    flag_8A = true;
+                    
+                    flag_4B = false;
+                    flag_4C = true;
+                  }
+              }
+           }
+
+ if ( (ultrasonic1/58 > 8) && ((ultrasonic2/58) <= 8) && ((ultrasonic2/58) > 1) && (ultrasonic3/58 > 8) && flag_5A == true) //Case 5: NO object in front, AND object on left, no object on right, turn right 90deg
+        {
+          servo_LeftMotor.writeMicroseconds(1500); //stop
+          servo_RightMotor.writeMicroseconds(1500);
+          Serial.print ("case5A");
+          Serial.print('\n'); 
+          flag_1 = false; 
+          flag_2A = false;
+          flag_3A = false;
+          flag_4A = false;
+          flag_5A = false;
+          flag_6A = false;
+          flag_7A = false;
+          flag_8A = false;
+          
+          flag_5B = true; 
+        }
+          if (flag_5B == true)
+          {
+            currentMillis = millis();
+            //Serial.print ("Millis: ");
+            //Serial.print (currentMillis);
+            //Serial.print('\n')
+              if(flag_5C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_5C = false;
+              }
+              if (flag_5C == false)
+              {
+                  if((currentMillis-startVal) < 500) //turn right 90deg
+                  {
+                    servo_RightMotor.writeMicroseconds(1800);
+                    servo_LeftMotor.writeMicroseconds(1500);
+                    Serial.print("case5B");
+                    Serial.print('\n');
+                  }
+                  else if((currentMillis-startVal) > 500)
+                  {
+                    flag_1 = true; 
+                    flag_2A = true;
+                    flag_3A = true;
+                    flag_4A = true;
+                    flag_5A = true;
+                    flag_6A = true;
+                    flag_7A = true;
+                    flag_8A = true;
+                    
+                    flag_5B = false;
+                    flag_5C = true;
+                  }
+              }
+           }
+
+else if ( ((ultrasonic1/58) <= 8 && (ultrasonic1/58) > 1)  && ((ultrasonic2/58) <= 8) && ((ultrasonic2/58) > 1) && ((ultrasonic3/58) > 8) && flag_6A == true) //Case 6: object in front, AND object on left, no object on right. back up turn right 90deg
+        {
+          servo_LeftMotor.writeMicroseconds(1500); //stop
+          servo_RightMotor.writeMicroseconds(1500);
+          Serial.print ("case6A");
+          Serial.print('\n'); 
+          flag_1 = false; 
+          flag_2A = false;
+          flag_3A = false;
+          flag_4A = false;
+          flag_5A = false;
+          flag_6A = false;
+          flag_7A = false;
+          flag_8A = false;
+          
+          flag_6B = true; 
+        }
+          if (flag_6B == true)
+          {
+            currentMillis = millis();
+            //Serial.print ("Millis: ");
+            //Serial.print (currentMillis);
+            //Serial.print('\n')
+              if(flag_6C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_6C = false;
+              }
+              if (flag_6C == false)
+              {
+                  if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
+                  {
+                    servo_RightMotor.writeMicroseconds(1400);
+                    servo_LeftMotor.writeMicroseconds(1400);
+                    Serial.print("case6B");
+                    Serial.print('\n');
+                  }
+                  else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 900)//turn right
+                  {
+                    servo_RightMotor.writeMicroseconds(1700);
+                    servo_LeftMotor.writeMicroseconds(1300);
+                    Serial.print("case6C");
+                    Serial.print('\n');
+                  }
+                  else if((currentMillis-startVal) > 900)
+                  {
+                    flag_1 = true; 
+                    flag_2A = true;
+                    flag_3A = true;
+                    flag_4A = true;
+                    flag_5A = true;
+                    flag_6A = true;
+                    flag_7A = true;
+                    flag_8A = true;
+
+                    
+                    flag_6B = false;
+                    flag_6C = true;
+                  }
+              }
+           }
+
+     else if ( ((ultrasonic1/58) <= 8 && (ultrasonic1/58) > 1)  && ((ultrasonic2/58) <= 8) && ((ultrasonic2/58) > 1) && ((ultrasonic3/58) > 8) && flag_7A == true) //Case 7: object in front, AND object on left, no object on right. back up turn right 90deg
+        {
+          servo_LeftMotor.writeMicroseconds(1500); //stop
+          servo_RightMotor.writeMicroseconds(1500);
+          Serial.print ("case7A");
+          Serial.print('\n'); 
+          flag_1 = false; 
+          flag_2A = false;
+          flag_3A = false;
+          flag_4A = false;
+          flag_5A = false;
+          flag_6A = false;
+          flag_7A = false;
+          flag_8A = false;
+          
+          flag_7B = true; 
+        }
+          if (flag_7B == true)
+          {
+            currentMillis = millis();
+            //Serial.print ("Millis: ");
+            //Serial.print (currentMillis);
+            //Serial.print('\n')
+              if(flag_7C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_7C = false;
+              }
+              if (flag_7C == false)
+              {
+                  if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
+                  {
+                    servo_RightMotor.writeMicroseconds(1400);
+                    servo_LeftMotor.writeMicroseconds(1400);
+                    Serial.print("case7B");
+                    Serial.print('\n');
+                  }
+                  else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 900)//turn right
+                  {
+                    servo_RightMotor.writeMicroseconds(1700);
+                    servo_LeftMotor.writeMicroseconds(1300);
+                    Serial.print("case7C");
+                    Serial.print('\n');
+                  }
+                  else if((currentMillis-startVal) > 900)
+                  {
+                    flag_1 = true; 
+                    flag_2A = true;
+                    flag_3A = true;
+                    flag_4A = true;
+                    flag_5A = true;
+                    flag_6A = true;
+                    flag_7A = true;
+                    flag_8A = true;
+                    
+                    flag_7B = false;
+                    flag_7C = true;
+                  }
+              }
+           }
+
+  else if ( ((ultrasonic1/58) > 8) && ((ultrasonic2/58) <= 8 && (ultrasonic2/58) > 1)  && (((ultrasonic3/58) <= 8) && (ultrasonic3/58) > 1) && flag_8A == true) //Case 8: no object in front, AND object on left, AND object on right. straight
+        {
+          Serial.print('\n');
+          Serial.print ("case8");
+          Serial.print('\n');
+
+          servo_RightMotor.writeMicroseconds(1750);
+          servo_LeftMotor.writeMicroseconds(1800);
            }
             
         ui_Mode_Indicator_Index = 1;
@@ -287,18 +718,75 @@ void loop()
       break;
     }  
     case 2:
-    {
-        servo_ScooperMotor.write(ci_Scooper_Motor_Down);
-        delay (2000);
-         servo_ScooperMotor.write(ci_Scooper_Motor_Up);
-        delay (2000);
+    { 
+      Serial.print("y: ");
+      Serial.print(y);
+      if ( y < 0)
+      {
+        Serial.print("Backing up...");
+      encoder_LeftMotor.zero();
+      encoder_RightMotor.zero();
+        servo_RightMotor.writeMicroseconds(1250);
+        servo_LeftMotor.writeMicroseconds(1200);
+        y += (Right_Motor_Position+Left_Motor_Position);
+      }
+      else if (y >= 0)
+      {
+        delay (1000);
+        Serial.print("brake");
+        servo_RightMotor.writeMicroseconds(200);
+        servo_LeftMotor.writeMicroseconds(200);
+      }
         
+//      Serial.print("2\n");
+      Right_Motor_Position = encoder_LeftMotor.getRawPosition();
+      Left_Motor_Position = encoder_RightMotor.getRawPosition();
+      Serial.print("Encoders L: ");
+      Serial.print(Left_Motor_Position);
+      Serial.print(", R: ");
+      Serial.println(Right_Motor_Position);
+     
+//      if((Right_Motor_Position >= -850) && (Left_Motor_Position >= -850))
+//      {
+//        servo_RightMotor.writeMicroseconds(1750);
+//        servo_LeftMotor.writeMicroseconds(1800);
+//        Serial.print("1");
+//      }
+//      else if ( (Right_Motor_Position < -850) && (Left_Motor_Position < -850)) 
+//      {
+//        servo_RightMotor.writeMicroseconds(200);
+//        servo_LeftMotor.writeMicroseconds(200);
+//      }
+//      else if ((Right_Motor_Position >= -1200) && (Left_Motor_Position >= -1200))
+//      {
+//         servo_RightMotor.writeMicroseconds(200);
+//         servo_LeftMotor.writeMicroseconds(1800);
+//      }
+//      else if ((Right_Motor_Position >= -1200) && (Left_Motor_Position < 2000))
+//      {
+//         servo_RightMotor.writeMicroseconds(200);
+//         servo_LeftMotor.writeMicroseconds(200);
+//      }
+      
+//else if (((Right_Motor_Position >= -1200)&& (Right_Motor_Position <= -850)) && ((Left_Motor_Position <= -850) && (Left_Motor_Position <= -850)))
+//      {
+//        
+//      }
+
+
+//        servo_ScooperMotor.write(ci_Scooper_Motor_Down);
+//        delay (2000);
+//         servo_ScooperMotor.write(ci_Scooper_Motor_Up);
+//        delay (2000);
+//        
       ui_Mode_Indicator_Index = 2; 
       break;
     }
     
     case 3:
     {
+     
+      
       ui_Mode_Indicator_Index = 3;
       break;
     }
@@ -323,18 +811,18 @@ void loop()
         {
           servo_LeftMotor.writeMicroseconds(ci_Left_Motor_Stop); 
           servo_RightMotor.writeMicroseconds(ci_Right_Motor_Stop); 
-          l_Left_Motor_Position = encoder_LeftMotor.getRawPosition();
-          l_Right_Motor_Position = encoder_RightMotor.getRawPosition();
-          if(l_Left_Motor_Position > l_Right_Motor_Position)
+          Left_Motor_Position = encoder_LeftMotor.getRawPosition();
+          Right_Motor_Position = encoder_RightMotor.getRawPosition();
+          if(Left_Motor_Position > Right_Motor_Position)
           {
            // May have to update this if different calibration time is used
             ui_Right_Motor_Offset = 0;
-            ui_Left_Motor_Offset = (l_Left_Motor_Position - l_Right_Motor_Position) / 4;  
+            ui_Left_Motor_Offset = (Left_Motor_Position - Right_Motor_Position) / 4;  
           }
           else
           {
            // May have to update this if different calibration time is used
-            ui_Right_Motor_Offset = (l_Right_Motor_Position - l_Left_Motor_Position) / 4;
+            ui_Right_Motor_Offset = (Right_Motor_Position - Left_Motor_Position) / 4;
             ui_Left_Motor_Offset = 0;
           }
           
@@ -410,3 +898,12 @@ void Ping2()
   //time that it takes from when the Pin goes HIGH until it goes LOW 
   ultrasonic2 = pulseIn(Ultrasonic_Data2, HIGH, 10000);
 }
+void Ping3()
+{
+  //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
+  digitalWrite(Ultrasonic_Ping3, HIGH);
+  delayMicroseconds(10);  //The 10 microsecond pause where the pulse in "high"
+  digitalWrite(Ultrasonic_Ping3, LOW);
+  //use command pulseIn to listen to Ultrasonic_Data pin to record the
+  //time that it takes from when the Pin goes HIGH until it goes LOW 
+  ultrasonic3 = pulseIn(Ultrasonic_Data3, HIGH, 10000);
