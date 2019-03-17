@@ -33,14 +33,14 @@ const int ci_Charlieplex_LED4 = 7;
 const int ci_Mode_Button = 7;
 const int ci_Right_Motor = 8;
 const int ci_Left_Motor = 9;
-const int Ultrasonic_Ping3 = 10; //input plug
-const int Ultrasonic_Data3 = 11; //output plug
+const int ci_Scooper_Motor = 10;
+const int ci_Light_Sensor = 11;
 const int ci_Motor_Enable_Switch = 12;
 //const int (insert motor / sensor here) = 13;
-const int Ultrasonic_Ping2 = A0;
-const int Ultrasonic_Data2 = A1;
-const int ci_Scooper_Motor = A2;
-const int ci_Light_Sensor = A3;
+const int Ultrasonic_Ping2 = A0; //input plug
+const int Ultrasonic_Data2 = A1; //output plug
+const int Ultrasonic_Ping3 = A2; //input plug
+const int Ultrasonic_Data3 = A3; //output plug
 const int ci_I2C_SDA = A4;         // I2C data = white
 const int ci_I2C_SCL = A5;         // I2C clock = yellow
 
@@ -907,3 +907,4 @@ void Ping3()
   //use command pulseIn to listen to Ultrasonic_Data pin to record the
   //time that it takes from when the Pin goes HIGH until it goes LOW 
   ultrasonic3 = pulseIn(Ultrasonic_Data3, HIGH, 10000);
+}
