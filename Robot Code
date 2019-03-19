@@ -333,7 +333,7 @@ void loop()
               Movement T;
               T.move = 1;
               T.time = currentMillis - startTime;
-              void push(const Movement T); 
+              stack.push(T); 
               A = true;
               Serial.print("saved");
               Serial.print("/n");
@@ -408,7 +408,7 @@ void loop()
               T.time = currentMillis - startTime;
               Serial.print(T.time);
               Serial.print("\n");
-              void push(const Movement T); 
+              stack.push(T); 
               A = true;
               Serial.print("saved");
               Serial.print("\n");
