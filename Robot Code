@@ -166,17 +166,13 @@ boolean bt_Cal_Initialized = false;
   bool flag_2B_reversed = false;
   bool flag_2C_reversed = true;
 
+  bool flag_3B_reversed = false;
+  bool flag_3C_reversed = true;
+  
+
  long currentMove, currentTime;
- bool N = true;
- bool S = false;
- bool E = false;
- bool West = false;
- bool NW = false;
- bool NE = false;
- bool SW = false;
- bool SEa = false;
-unsigned long currentMillis;
-unsigned long startVal;
+unsigned long currentMillis, currentMillis_reversed;
+unsigned long startVal, startVal_reversed;
 unsigned long startTime, endTime;
 unsigned long newStartTime, newEndTime;
 
@@ -271,9 +267,8 @@ void loop()
     case 0: //Robot stopped
     {
       Serial.println("nothing...");
-      Ping1();
-      Ping2();
-      Ping3();
+      Ping();
+   
       servo_LeftMotor.writeMicroseconds(Motor_Stop); 
       servo_RightMotor.writeMicroseconds(Motor_Stop);
       Serial.print(" Ultrasonic 1: ");
@@ -293,9 +288,7 @@ void loop()
       {
         if(bt_3_S_Time_Up)
         {
-          Ping1();
-          Ping2();
-          Ping3();
+          Ping();
           Serial.print(" Ultrasonic 1: ");
           Serial.println(ultrasonic1/58);
           Serial.print(" Ultrasonic 2: ");
@@ -762,13 +755,12 @@ void loop()
             servo_RightMotor.writeMicroseconds(1750);
             servo_LeftMotor.writeMicroseconds(1800);
              }
-              
-          ui_Mode_Indicator_Index = 1;
+             
+             ui_Mode_Indicator_Index = 1;
         }
         break;
       }
-      
-      else if (bt_45_S_Time_Up == true) //begin first return home 
+           else if (bt_45_S_Time_Up == true) //begin first return home 
       {
         Serial.println("transverse");
         // flag to check if stack is empty: 0 = full, 1 = empty
@@ -827,51 +819,55 @@ void loop()
                  B = true;
                }
             } 
-            if (currentMove == 2 && B == false)
+            
+            if (currentMove == 3 && B == false)
             { 
               servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
               servo_RightMotor.writeMicroseconds(Motor_Stop);
               
-              flag_2B_reversed = true; 
-             if (flag_2B_reversed == true) 
+              flag_3B_reversed = true; 
+             if (flag_3B_reversed == true) 
             {
-              currentMillis = millis();
+              currentMillis_reversed = millis();
               //Serial.print ("Millis: ");
               //Serial.println(currentMillis);
-                if(flag_2C_reversed == true) // start timer
+                if(flag_3C_reversed == true) // start timer
                 {
-                  startVal = currentMillis;
-                  flag_2C_reversed = false;
+                  Serial.print(" startVal_reversed = ");
+                  Serial.println( startVal_reversed);
+                  Serial.print(" currentMillis_reversed = ");
+                  Serial.println( currentMillis_reversed);
+                  
+                  startVal_reversed = currentMillis_reversed;
+                  flag_3C_reversed = false;
                 }
-                if (flag_2C_reversed == false)
+                if (flag_3C_reversed == false) //error we are having with Case 3 reversed is it is not leaving the turnright function. 
                 {
-                    if((currentMillis-startVal) < 1100) //back up slightly after .7 seconds
+                    if((currentMillis_reversed- startVal_reversed) < 1600) //turn right 1.6 seconds
                     {
                       servo_RightMotor.writeMicroseconds(1300);
                       servo_LeftMotor.writeMicroseconds(1700);
-                      Serial.println("case2C reversed");
-                      
+                      Serial.println("case3B");
                     }
-                    else if((currentMillis-startVal)> 1100 && (currentMillis-startVal) < 1800)//turn 180
+                    else if((currentMillis_reversed- startVal_reversed)> 1600 && (currentMillis_reversed- startVal_reversed) < 2000)//drive straight .4 seconds
                     {
                       servo_RightMotor.writeMicroseconds(1600);
-                      servo_LeftMotor.writeMicroseconds(1600);
-                      Serial.println("case2B reversed");
+                      servo_LeftMotor.writeMicroseconds(1600); 
+                      Serial.println("case3C");
                     }
-                    else if((currentMillis-startVal) > 1800)
+                    else if((currentMillis_reversed- startVal_reversed) > 2000)
                     {
-                      flag_2B_reversed = false; //Do we need?
-                      flag_2C_reversed = true;
-                      
-                     break;
+                      flag_3B_reversed = false;
+                      flag_3C_reversed = true;
+                      break;
                     }
                    }
                  }
                 } 
-             if (currentMove == 3 && B == false)
-          {
-            
-          }
+//             if (currentMove == 3 && B == false)
+//          {
+//            
+//          }
                 
           }
           if (stack_empty == true)
@@ -881,7 +877,10 @@ void loop()
               servo_LeftMotor.writeMicroseconds(1500);
           }
       }
-    }  
+    }     
+          
+      
+      
     case 2:
     { 
         servo_ScooperMotor.write(ci_Scooper_Motor_Down);
@@ -986,7 +985,7 @@ void Indicator()
 
 
 // measure distance to target using ultrasonic sensor  
-void Ping1()
+void Ping()
 {
   //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
   digitalWrite(Ultrasonic_Ping1, HIGH);
@@ -995,9 +994,7 @@ void Ping1()
   //use command pulseIn to listen to Ultrasonic_Data pin to record the
   //time that it takes from when the Pin goes HIGH until it goes LOW 
   ultrasonic1 = pulseIn(Ultrasonic_Data1, HIGH, 10000);
-}
-void Ping2()
-{
+
   //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
   digitalWrite(Ultrasonic_Ping2, HIGH);
   delayMicroseconds(10);  //The 10 microsecond pause where the pulse in "high"
@@ -1005,9 +1002,7 @@ void Ping2()
   //use command pulseIn to listen to Ultrasonic_Data pin to record the
   //time that it takes from when the Pin goes HIGH until it goes LOW 
   ultrasonic2 = pulseIn(Ultrasonic_Data2, HIGH, 10000);
-}
-void Ping3()
-{
+
   //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
   digitalWrite(Ultrasonic_Ping3, HIGH);
   delayMicroseconds(10);  //The 10 microsecond pause where the pulse in "high"
