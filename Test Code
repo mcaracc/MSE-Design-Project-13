@@ -778,7 +778,7 @@ void loop()
             flag_7A = false;
             flag_8A = false;
           
-            flag_28B = true;    
+            flag_8B = true;    
           }
             if (flag_8B == true)
             {
@@ -825,12 +825,9 @@ void loop()
                     }
                 }
              }
-             }
-              
-          ui_Mode_Indicator_Index = 1;
-        }
-        break;
-      }
+             
+        }  
+          
       
       else if (bt_45_S_Time_Up == true) //begin first return home 
       {
@@ -981,7 +978,11 @@ void loop()
           }
          }
       }
-    }  
+    } 
+    ui_Mode_Indicator_Index = 1;
+        
+        break;
+      } 
     case 2:
     { 
         servo_ScooperMotor.write(ci_Scooper_Motor_Down);
