@@ -5,6 +5,8 @@
 #include <Wire.h>
 #include <I2CEncoder.h>
 #include <StackArray.h>
+#include "NewPing.h"
+#include <SoftwareSerial.h>
 
 Servo servo_RightMotor;
 Servo servo_LeftMotor;
@@ -22,7 +24,8 @@ class Movement
 };
 
  StackArray <Movement> stack;
-
+ SoftwareSerial mySerial(2, 13); // RX, TX
+ 
 // Uncomment keywords to enable debugging output
   //#define DEBUG_MODE_DISPLAY
   //#define DEBUG_MOTORS
@@ -32,10 +35,30 @@ class Movement
   //#define DEBUG_MOTOR_CALIBRATION
 
 boolean bt_Motors_Enabled = true;
+#define Ultrasonic_Ping1  A0
+#define Ultrasonic_Data1  A0
+#define Ultrasonic_Ping2  A1
+#define Ultrasonic_Data2  A1
+#define Ultrasonic_Ping3  A2
+#define Ultrasonic_Data3  A2
+#define MAX_DISTANCE 400
+
+NewPing sonar1(Ultrasonic_Ping1, Ultrasonic_Data1, MAX_DISTANCE);
+NewPing sonar2(Ultrasonic_Ping2, Ultrasonic_Data2, MAX_DISTANCE);
+NewPing sonar3(Ultrasonic_Ping3, Ultrasonic_Data3, MAX_DISTANCE);
+
+float echo1; // Stores calculated distance in cm for First Sensor
+float echo2; // Stores calculated distance in cm for Second Sensor
+float echo3; // Stores calculated distance in cm for Third Sensor
+float soundsp;  // Stores calculated speed of sound in M/S
+float soundcm;  // Stores calculated speed of sound in cm/ms
+int iterations = 2;
 
 //port pin constants
-const int Ultrasonic_Ping1 = 2;   //input plug
-const int Ultrasonic_Data1 = 3;   //output plug
+//const int Ultrasonic_Ping1 = A0;   //input plug
+//const int Ultrasonic_Data1 = A0;   //output plug
+const int ci_Light_Sensor = 2;
+//const int (insert motor / sensor here) = 3;
 const int ci_Charlieplex_LED1 = 4;
 const int ci_Charlieplex_LED2 = 5;
 const int ci_Charlieplex_LED3 = 6;
@@ -44,13 +67,14 @@ const int ci_Mode_Button = 7;
 const int ci_Right_Motor = 8;
 const int ci_Left_Motor = 9;
 const int ci_Scooper_Motor = 10;
-const int ci_Light_Sensor = 11;
+const int ci_Sweeper_Motor = 11; 
 const int ci_Motor_Enable_Switch = 12;
 //const int (insert motor / sensor here) = 13;
-const int Ultrasonic_Ping2 = A0; //input plug
-const int Ultrasonic_Data2 = A1; //output plug
-const int Ultrasonic_Ping3 = A2; //input plug
-const int Ultrasonic_Data3 = A3; //output plug
+//const int Ultrasonic_Ping2 = A1; //input plug
+//const int Ultrasonic_Data2 = A1; //output plug
+//const int Ultrasonic_Ping3 = A2; //input plug
+//const int Ultrasonic_Data3 = A2; //output plug
+//const int (insert motor / sensor here) = A3;
 const int ci_I2C_SDA = A4;         // I2C data = white
 const int ci_I2C_SCL = A5;         // I2C clock = yellow
 
@@ -75,8 +99,8 @@ const int ci_Right_Motor_Offset_Address_H = 15;
 
 const int Motor_Stop = 1500;        // 200 for brake mode; 1500 for stop
 const int Motor_Brake = 200;
-const int ci_Scooper_Motor_Up = 140;
-const int ci_Scooper_Motor_Down = 20;
+const int ci_Scooper_Motor_Up = 160;
+const int ci_Scooper_Motor_Down = 65;
 
 const int ul_front_D = 10;
 const int ul_side_D = 12;
@@ -165,14 +189,20 @@ boolean bt_Cal_Initialized = false;
 
   bool flag_2B_reversed = false;
   bool flag_2C_reversed = true;
-
   bool flag_3B_reversed = false;
   bool flag_3C_reversed = true;
-  
 
  long currentMove, currentTime;
-unsigned long currentMillis, currentMillis_reversed;
-unsigned long startVal, startVal_reversed;
+ bool N = true;
+ bool S = false;
+ bool E = false;
+ bool West = false;
+ bool NW = false;
+ bool NE = false;
+ bool SW = false;
+ bool SEa = false;
+unsigned long currentMillis;
+unsigned long startVal;
 unsigned long startTime, endTime;
 unsigned long newStartTime, newEndTime;
 
@@ -228,7 +258,7 @@ void loop()
     bt_3_S_Time_Up = true;
   }
   //45 second timer flag
-  if ( (millis() - ul_45_Second_timer) > 10000)
+  if ( (millis() - ul_45_Second_timer) > 15000)
   {
      bt_45_S_Time_Up = true;
   }
@@ -268,15 +298,15 @@ void loop()
     {
       Serial.println("nothing...");
       Ping();
-   
+      Infrared();
       servo_LeftMotor.writeMicroseconds(Motor_Stop); 
       servo_RightMotor.writeMicroseconds(Motor_Stop);
       Serial.print(" Ultrasonic 1: ");
-      Serial.println(ultrasonic1/58);
+      Serial.println(ultrasonic1 );
       Serial.print(" Ultrasonic 2: ");
-      Serial.println(ultrasonic2/58);
+      Serial.println(ultrasonic2 );
       Serial.print(" Ultrasonic 3: ");
-      Serial.println(ultrasonic3/58);
+      Serial.println(ultrasonic3 );
       
       ui_Mode_Indicator_Index = 0;
       break;
@@ -289,14 +319,15 @@ void loop()
         if(bt_3_S_Time_Up)
         {
           Ping();
+          Infrared();
           Serial.print(" Ultrasonic 1: ");
-          Serial.println(ultrasonic1/58);
+          Serial.println(ultrasonic1);
           Serial.print(" Ultrasonic 2: ");
-          Serial.println(ultrasonic2/58);
+          Serial.println(ultrasonic2);
           Serial.print(" Ultrasonic 3: ");
-          Serial.println(ultrasonic3/58);
+          Serial.println(ultrasonic3);
             
-          if ( (ultrasonic1/58 > ul_front_D) && (ultrasonic2/58 > 10) && (ultrasonic3/58 > 10) && flag_1 == true) //Case 1: no objects nearby, drive straight 
+          if ( (ultrasonic1 > ul_front_D) && (ultrasonic2 > 10) && (ultrasonic3 > 10) && flag_1 == true) //Case 1: no objects nearby, drive straight 
           {
             if (A == true)
             {
@@ -312,7 +343,7 @@ void loop()
             servo_LeftMotor.writeMicroseconds(1800); 
           }
           
-          else if ( ((ultrasonic1/58) <= ul_front_D && (ultrasonic1/58) > 1)  && ((ultrasonic2/58) <= ul_side_D) && ((ultrasonic2/58) > 1) && ((ultrasonic3/58) <= ul_side_D) && ((ultrasonic3/58) > 1) && flag_2A == true) //Case 2: object in front, AND object on left, AND object on right. back up turn 180deg
+          else if ( ((ultrasonic1) <= ul_front_D && (ultrasonic1) > 1)  && ((ultrasonic2) <= ul_side_D) && ((ultrasonic2) > 1) && ((ultrasonic3) <= ul_side_D) && ((ultrasonic3) > 1) && flag_2A == true) //Case 2: object in front, AND object on left, AND object on right. back up turn 180deg
           {
             servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
             servo_RightMotor.writeMicroseconds(Motor_Stop);
@@ -386,7 +417,7 @@ void loop()
                 }
              }
   
-   else if ( ((ultrasonic1/58) <= ul_front_D && (ultrasonic1/58) > 1)  && (ultrasonic2/58 > ul_side_D) && (ultrasonic3/58 > ul_side_D) && flag_3A == true) //Case 3: object in front, no object on left, no object on right. back up, turn left (can be right too)
+   else if ( ((ultrasonic1) <= ul_front_D && (ultrasonic1) > 1)  && (ultrasonic2 > ul_side_D) && (ultrasonic3 > ul_side_D) && flag_3A == true) //Case 3: object in front, no object on left, no object on right. back up, turn left (can be right too)
           {
             servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
             servo_RightMotor.writeMicroseconds(Motor_Stop);
@@ -462,7 +493,7 @@ void loop()
                 }
              }
              
-   else if ( (ultrasonic1/58 > ul_front_D) && (ultrasonic2/58 > ul_side_D) && ((ultrasonic3/58) <= ul_side_D) && ((ultrasonic3/58) > 1) && flag_4A == true) //Case 4: NO object in front, no object on left, AND object on right, turn left 90deg
+   else if ( (ultrasonic1 > ul_front_D) && (ultrasonic2 > ul_side_D) && ((ultrasonic3) <= ul_side_D) && ((ultrasonic3) > 1) && flag_4A == true) //Case 4: NO object in front, no object on left, AND object on right, turn left 90deg
           {
             servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
             servo_RightMotor.writeMicroseconds(Motor_Stop);
@@ -530,7 +561,7 @@ void loop()
                 }
              }
   
-   if ( (ultrasonic1/58 > ul_front_D) && ((ultrasonic2/58) <= ul_side_D) && ((ultrasonic2/58) > 1) && (ultrasonic3/58 > ul_side_D) && flag_5A == true) //Case 5: NO object in front, AND object on left, no object on right, turn right 90deg
+   if ( (ultrasonic1 > ul_front_D) && ((ultrasonic2) <= ul_side_D) && ((ultrasonic2) > 1) && (ultrasonic3 > ul_side_D) && flag_5A == true) //Case 5: NO object in front, AND object on left, no object on right, turn right 90deg
           {
             servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
             servo_RightMotor.writeMicroseconds(Motor_Stop);
@@ -599,7 +630,7 @@ void loop()
                 }
              }
   
-  else if ( ((ultrasonic1/58) <= ul_front_D && (ultrasonic1/58) > 1)  && ((ultrasonic2/58) <= ul_side_D) && ((ultrasonic2/58) > 1) && ((ultrasonic3/58) > ul_side_D) && flag_6A == true) //Case 6: object in front, AND object on left, no object on right. back up turn right 90deg
+  else if ( ((ultrasonic1) <= ul_front_D && (ultrasonic1) > 1)  && ((ultrasonic2) <= ul_side_D) && ((ultrasonic2) > 1) && ((ultrasonic3) > ul_side_D) && flag_6A == true) //Case 6: object in front, AND object on left, no object on right. back up turn right 90deg
           {
             servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
             servo_RightMotor.writeMicroseconds(Motor_Stop);
@@ -673,7 +704,7 @@ void loop()
                 }
              }
   
-       else if ( ((ultrasonic1/58) <= ul_front_D && (ultrasonic1/58) > 1)  && ((ultrasonic2/58) <= ul_side_D) && ((ultrasonic2/58) > 1) && ((ultrasonic3/58) > ul_side_D) && flag_7A == true) //Case 7: object in front, AND object on left, no object on right. back up turn right 90deg
+       else if ( ((ultrasonic1) <= ul_front_D && (ultrasonic1) > 1) && ((ultrasonic2 ) > ul_side_D) && ((ultrasonic3 ) <= ul_side_D) && ((ultrasonic3 ) > 1) && flag_7A == true) //Case 7: object in front, no object on left, AND object on right. back up turn left 90deg
           {
             servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
             servo_RightMotor.writeMicroseconds(Motor_Stop);
@@ -719,10 +750,10 @@ void loop()
                       servo_LeftMotor.writeMicroseconds(1400);
                       Serial.println("case7B");
                     }
-                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 900)//turn right
+                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 900)//turn left
                     {
-                      servo_RightMotor.writeMicroseconds(1300);
-                      servo_LeftMotor.writeMicroseconds(1700);
+                      servo_RightMotor.writeMicroseconds(1700);
+                      servo_LeftMotor.writeMicroseconds(1300);
                       Serial.println("case7C");
                     }
                     else if((currentMillis-startVal) > 900)
@@ -747,20 +778,84 @@ void loop()
                 }
              }
   
-    else if ( ((ultrasonic1/58) > ul_front_D) && ((ultrasonic2/58) <= ul_side_D && (ultrasonic2/58) > 1)  && (((ultrasonic3/58) <= ul_side_D) && (ultrasonic3/58) > 1) && flag_8A == true) //Case 8: no object in front, AND object on left, AND object on right. straight
+    else if ( ((ultrasonic1 ) > ul_front_D) && ((ultrasonic2 ) <= ul_side_D && (ultrasonic2) > 1)  && (((ultrasonic3) <= ul_side_D) && (ultrasonic3) > 1) && flag_8A == true) //Case 8: no object in front, AND object on left, AND object on right. straight
           {
-            Serial.print('\n');
-            Serial.println("case8");
+            servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+            servo_RightMotor.writeMicroseconds(Motor_Stop);
+            Serial.println("case8A");
+            flag_1 = false;
+            if (A == false)
+            {
+              endTime = millis();
+              Serial.print("endTime: ");
+              Serial.println(endTime);
+              Movement T;
+              T.move = 1;
+              T.time = endTime - startTime;
+              stack.push(T); 
+              A = true;
+              Serial.println("saved");
+            } 
+            flag_2A = false;
+            flag_3A = false;
+            flag_4A = false;
+            flag_5A = false;
+            flag_6A = false;
+            flag_7A = false;
+            flag_8A = false;
+          
+            flag_8B = true;    
+          }
+            if (flag_8B == true)
+            {
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+                if(flag_8C == true) // start timer
+                {
+                  startVal = currentMillis;
+                  flag_8C = false;
+                }
+                if (flag_8C == false)
+                {
+                    if((currentMillis-startVal) < 700) //back up slightly after .7 seconds
+                    {
+                      servo_RightMotor.writeMicroseconds(1400);
+                      servo_LeftMotor.writeMicroseconds(1400);
+                      Serial.println("case8B");
+                    }
+                    else if((currentMillis-startVal)> 700 && (currentMillis-startVal) < 1800)//turn 180
+                    {
+                      servo_RightMotor.writeMicroseconds(1700);
+                      servo_LeftMotor.writeMicroseconds(1300);
+                      Serial.println("case8C");
+                    }
+                    else if((currentMillis-startVal) > 1800)
+                    {
+                      flag_1 = true; 
+                      flag_2A = true;
+                      flag_3A = true;
+                      flag_4A = true;
+                      flag_5A = true;
+                      flag_6A = true;
+                      flag_7A = true;
+                      flag_8A = true;
   
-            servo_RightMotor.writeMicroseconds(1750);
-            servo_LeftMotor.writeMicroseconds(1800);
+                      flag_8B = false;
+                      flag_8C = true;
+
+                      Movement T;
+                      T.move = 8;
+                      T.time = 1800;
+                      stack.push(T);
+                    }
+                }
              }
              
-             ui_Mode_Indicator_Index = 1;
-        }
-        break;
-      }
-           else if (bt_45_S_Time_Up == true) //begin first return home 
+        }  
+          
+      
+      else if (bt_45_S_Time_Up == true) //begin first return home 
       {
         Serial.println("transverse");
         // flag to check if stack is empty: 0 = full, 1 = empty
@@ -819,55 +914,86 @@ void loop()
                  B = true;
                }
             } 
-            
-            if (currentMove == 3 && B == false)
+            if (currentMove == 2 && B == false)
             { 
               servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
               servo_RightMotor.writeMicroseconds(Motor_Stop);
               
-              flag_3B_reversed = true; 
-             if (flag_3B_reversed == true) 
+              flag_2B_reversed = true; 
+             if (flag_2B_reversed == true) 
             {
-              currentMillis_reversed = millis();
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+                if(flag_2C_reversed == true) // start timer
+                {
+                  startVal = currentMillis;
+                  flag_2C_reversed = false;
+                }
+                if (flag_2C_reversed == false)
+                {
+                    if((currentMillis-startVal) < 1100) //back up slightly after .7 seconds
+                    {
+                      servo_RightMotor.writeMicroseconds(1300);
+                      servo_LeftMotor.writeMicroseconds(1700);
+                      Serial.println("case2C reversed");
+                      
+                    }
+                    else if((currentMillis-startVal)> 1100 && (currentMillis-startVal) < 1800)//turn 180
+                    {
+                      servo_RightMotor.writeMicroseconds(1600);
+                      servo_LeftMotor.writeMicroseconds(1600);
+                      Serial.println("case2B reversed");
+                    }
+                    else if((currentMillis-startVal) > 1800)
+                    {
+                      flag_2B_reversed = false;
+                      flag_2C_reversed = true;
+                      
+                     break;
+                    }
+                   }
+                 }
+                } 
+             if (currentMove == 3 && B == false)
+          {
+             servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+              servo_RightMotor.writeMicroseconds(Motor_Stop);
+              
+              flag_3B_reversed = true; 
+          
+             if (flag_3B_reversed == true)
+            {
+              currentMillis = millis();
               //Serial.print ("Millis: ");
               //Serial.println(currentMillis);
                 if(flag_3C_reversed == true) // start timer
                 {
-                  Serial.print(" startVal_reversed = ");
-                  Serial.println( startVal_reversed);
-                  Serial.print(" currentMillis_reversed = ");
-                  Serial.println( currentMillis_reversed);
-                  
-                  startVal_reversed = currentMillis_reversed;
+                  startVal = currentMillis;
                   flag_3C_reversed = false;
                 }
-                if (flag_3C_reversed == false) //error we are having with Case 3 reversed is it is not leaving the turnright function. 
+                if (flag_3C_reversed == false)
                 {
-                    if((currentMillis_reversed- startVal_reversed) < 1600) //turn right 1.6 seconds
+                    if((currentMillis-startVal) < 1600) //turn right 1.6 seconds
                     {
                       servo_RightMotor.writeMicroseconds(1300);
                       servo_LeftMotor.writeMicroseconds(1700);
                       Serial.println("case3B");
                     }
-                    else if((currentMillis_reversed- startVal_reversed)> 1600 && (currentMillis_reversed- startVal_reversed) < 2000)//drive straight .4 seconds
+                    else if((currentMillis-startVal)> 1600 && (currentMillis-startVal) < 2000)//drive straight .4 seconds
                     {
                       servo_RightMotor.writeMicroseconds(1600);
                       servo_LeftMotor.writeMicroseconds(1600); 
                       Serial.println("case3C");
                     }
-                    else if((currentMillis_reversed- startVal_reversed) > 2000)
+                    else if((currentMillis-startVal) > 2000)
                     {
                       flag_3B_reversed = false;
                       flag_3C_reversed = true;
                       break;
                     }
-                   }
-                 }
-                } 
-//             if (currentMove == 3 && B == false)
-//          {
-//            
-//          }
+                }
+          }
                 
           }
           if (stack_empty == true)
@@ -876,11 +1002,13 @@ void loop()
               servo_RightMotor.writeMicroseconds(1500);
               servo_LeftMotor.writeMicroseconds(1500);
           }
+         }
       }
-    }     
-          
-      
-      
+    } 
+    ui_Mode_Indicator_Index = 1;
+        
+        break;
+      } 
     case 2:
     { 
         servo_ScooperMotor.write(ci_Scooper_Motor_Down);
@@ -967,7 +1095,8 @@ void loop()
     Serial.println(ui_Mode_Indicator[ui_Mode_Indicator_Index], DEC);
 #endif
     bt_Heartbeat = !bt_Heartbeat;
-    CharliePlexM::Write(ci_Heartbeat_LED, bt_Heartbeat);
+    
+
     digitalWrite(13, bt_Heartbeat);
     Indicator();
   }
@@ -987,27 +1116,32 @@ void Indicator()
 // measure distance to target using ultrasonic sensor  
 void Ping()
 {
-  //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
-  digitalWrite(Ultrasonic_Ping1, HIGH);
-  delayMicroseconds(10);  //The 10 microsecond pause where the pulse in "high"
-  digitalWrite(Ultrasonic_Ping1, LOW);
-  //use command pulseIn to listen to Ultrasonic_Data pin to record the
-  //time that it takes from when the Pin goes HIGH until it goes LOW 
-  ultrasonic1 = pulseIn(Ultrasonic_Data1, HIGH, 10000);
-
-  //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
-  digitalWrite(Ultrasonic_Ping2, HIGH);
-  delayMicroseconds(10);  //The 10 microsecond pause where the pulse in "high"
-  digitalWrite(Ultrasonic_Ping2, LOW);
-  //use command pulseIn to listen to Ultrasonic_Data pin to record the
-  //time that it takes from when the Pin goes HIGH until it goes LOW 
-  ultrasonic2 = pulseIn(Ultrasonic_Data2, HIGH, 10000);
-
-  //Send the Ultrasonic Range Finder a 10 microsecond pulse per tech spec
-  digitalWrite(Ultrasonic_Ping3, HIGH);
-  delayMicroseconds(10);  //The 10 microsecond pause where the pulse in "high"
-  digitalWrite(Ultrasonic_Ping3, LOW);
-  //use command pulseIn to listen to Ultrasonic_Data pin to record the
-  //time that it takes from when the Pin goes HIGH until it goes LOW 
-  ultrasonic3 = pulseIn(Ultrasonic_Data3, HIGH, 10000);
+ soundsp = 331.4; // Calculate the Speed of Sound in M/S
+ soundcm = soundsp / 10000;  // Convert to cm/ms
+ 
+ echo1 = sonar1.ping_median(iterations); // Measure duration for first sensor (front)
+ echo2 = sonar2.ping_median(iterations); // Measure duration for second sensor (left)
+ echo3 = sonar3.ping_median(iterations); // Measure duration for third sensor (right)
+ 
+  // Calculate the distances for three sensors
+  ultrasonic1 = (echo1 / 2) * soundcm;
+  ultrasonic2 = (echo2 / 2) * soundcm;
+  ultrasonic3 = (echo3 / 2) * soundcm;
+}
+void Infrared()
+{
+  
+    if (mySerial.available())
+  {
+    int x = mySerial.read();
+    Serial.println(x);
+    if ( x >= 48 && x <= 51|| x >= 248 && x <= 255)
+    {
+      Serial.println("light found");
+    }
+    else
+    {
+      Serial.println("light NOT found");
+    }
+  }
 }
