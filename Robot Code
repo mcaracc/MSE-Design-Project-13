@@ -334,19 +334,19 @@ void loop()
                 }
                 if (flag_2C == false)
                 {
-                    if((currentMillis-startVal) < 700) //back up slightly after .7 seconds
+                    if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
                     {
                       servo_RightMotor.writeMicroseconds(1400);
                       servo_LeftMotor.writeMicroseconds(1400);
                       Serial.println("case2B");
                     }
-                    else if((currentMillis-startVal)> 700 && (currentMillis-startVal) < 1800)//turn 180
+                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 1200)//turn 180
                     {
                       servo_RightMotor.writeMicroseconds(1700);
                       servo_LeftMotor.writeMicroseconds(1300);
                       Serial.println("case2C");
                     }
-                    else if((currentMillis-startVal) > 1800)
+                    else if((currentMillis-startVal) > 1200)
                     {
                       flag_1 = true; 
                       flag_2A = true;
@@ -362,7 +362,7 @@ void loop()
 
                       Movement T;
                       T.move = 2;
-                      T.time = 1800;
+                      T.time = 1200;
                       stack.push(T);
                     }
                 }
@@ -416,7 +416,7 @@ void loop()
                       servo_LeftMotor.writeMicroseconds(1400);
                       Serial.println("case3B");
                     }
-                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 1000)//turn left
+                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 1000)//turn left 225deg
                     {
                       servo_RightMotor.writeMicroseconds(1700);
                       servo_LeftMotor.writeMicroseconds(1300); 
@@ -775,7 +775,7 @@ void loop()
                 }
                 if (flag_8C == false)
                 {
-                    if((currentMillis-startVal) < 400) //back up slightly after .7 seconds
+                    if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
                     {
                       servo_RightMotor.writeMicroseconds(1400);
                       servo_LeftMotor.writeMicroseconds(1400);
@@ -886,20 +886,20 @@ void loop()
                 }
                 if (flag_2C_reversed == false)
                 {
-                    if((currentMillis-startVal) < 1100) //back up slightly after .7 seconds
+                    if((currentMillis-startVal) < 800) //turn 180
                     {
                       servo_RightMotor.writeMicroseconds(1300);
                       servo_LeftMotor.writeMicroseconds(1700);
                       Serial.println("case2C reversed");
                       
                     }
-                    else if((currentMillis-startVal)> 1100 && (currentMillis-startVal) < 1800)//turn 180
+                    else if((currentMillis-startVal)> 800 && (currentMillis-startVal) < 1200)//go forward slightly
                     {
                       servo_RightMotor.writeMicroseconds(1600);
                       servo_LeftMotor.writeMicroseconds(1600);
                       Serial.println("case2B reversed");
                     }
-                    else if((currentMillis-startVal) > 1800)
+                    else if((currentMillis-startVal) > 1200)
                     {
                       flag_2B_reversed = false;
                       flag_2C_reversed = true;
