@@ -1006,7 +1006,156 @@ void loop()
                 }
              }
            }
+           if (currentMove == 5 && B == false)
+            {
+           servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+           servo_RightMotor.writeMicroseconds(Motor_Stop);
+            
+            flag_5B_reversed = true; 
           
+            if (flag_5B_reversed == true)
+            {
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+                if(flag_5C_reversed == true) // start timer
+                {
+                  startVal = currentMillis;
+                  flag_5C_reversed = false;
+                }
+                if (flag_5C_reversed == false)
+                {
+                    if((currentMillis-startVal) < 400) //turn left 90deg
+                    {
+                      servo_RightMotor.writeMicroseconds(1700);
+                      servo_LeftMotor.writeMicroseconds(1300);
+                      Serial.println("case5B_reversed");
+                    }
+                    else if((currentMillis-startVal) > 400)
+                    {
+                      flag_5B_reversed = false;
+                      flag_5C_reversed = true;
+                    }
+                }
+             }
+           }
+           if (currentMove == 6 && B == false)
+            {
+           servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+           servo_RightMotor.writeMicroseconds(Motor_Stop);
+            
+            flag_6B_reversed = true; 
+          
+            if (flag_6B_reversed == true)
+            {
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+                if(flag_6C_reversed == true) // start timer
+                {
+                  startVal = currentMillis;
+                  flag_6C_reversed = false;
+                }
+                if (flag_6C_reversed == false)
+                {
+                     if((currentMillis-startVal) < 400) turn left 90deg
+                    {
+                      servo_RightMotor.writeMicroseconds(1700);
+                      servo_LeftMotor.writeMicroseconds(1300);
+                      Serial.println("case6B_reversed");
+                    }
+                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 800) drive stright 0.4s
+                    {
+                      servo_RightMotor.writeMicroseconds(1600);
+                      servo_LeftMotor.writeMicroseconds(1600);
+                      Serial.println("case6C_reversed");
+                    }
+                    else if((currentMillis-startVal) > 800)
+                    {
+                      flag_6B_reversed = false;
+                      flag_6C_reversed = true;
+                    }
+                }
+             }
+           }
+             if (currentMove == 7 && B == false)
+            {
+           servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+           servo_RightMotor.writeMicroseconds(Motor_Stop);
+            
+            flag_7B_reversed = true; 
+          
+            if (flag_7B_reversed == true)
+            {
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+                if(flag_6C_reversed == true) // start timer
+                {
+                  startVal = currentMillis;
+                  flag_7C_reversed = false;
+                }
+                if (flag_7C_reversed == false)
+                {
+                     if((currentMillis-startVal) < 400) turn right 90deg
+                    {
+                      servo_RightMotor.writeMicroseconds(1300);
+                      servo_LeftMotor.writeMicroseconds(1700);
+                      Serial.println("case7B_reversed");
+                    }
+                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 800) drive stright 0.4s
+                    {
+                      servo_RightMotor.writeMicroseconds(1600);
+                      servo_LeftMotor.writeMicroseconds(1600);
+                      Serial.println("case7C_reversed");
+                    }
+                    else if((currentMillis-startVal) > 800)
+                    {
+                      flag_7B_reversed = false;
+                      flag_7C_reversed = true;
+                    }
+                }
+             }
+           }
+          if (currentMove == 8 && B == false)
+            { 
+              servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+              servo_RightMotor.writeMicroseconds(Motor_Stop);
+              
+              flag_8B_reversed = true; 
+             if (flag_8B_reversed == true) 
+            {
+              currentMillis = millis();
+                if(flag_8C_reversed == true) // start timer
+                {
+                  startVal = currentMillis;
+                  flag_8C_reversed = false;
+                }
+                if (flag_8C_reversed == false)
+                {
+                    if((currentMillis-startVal) < 800) //turn 180
+                    {
+                      servo_RightMotor.writeMicroseconds(1300);
+                      servo_LeftMotor.writeMicroseconds(1700);
+                      Serial.println("case8C reversed");
+                      
+                    }
+                    else if((currentMillis-startVal)> 800 && (currentMillis-startVal) < 1200)//go forward slightly
+                    {
+                      servo_RightMotor.writeMicroseconds(1600);
+                      servo_LeftMotor.writeMicroseconds(1600);
+                      Serial.println("case8B reversed");
+                    }
+                    else if((currentMillis-startVal) > 1200)
+                    {
+                      flag_8B_reversed = false;
+                      flag_8C_reversed = true;
+                      
+                     break;
+                    }
+                   }
+                 }
+                } 
           
           
           
