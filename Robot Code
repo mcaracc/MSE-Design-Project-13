@@ -163,6 +163,17 @@ boolean bt_Cal_Initialized = false;
   bool flag_2C_reversed = true;
   bool flag_3B_reversed = false;
   bool flag_3C_reversed = true;
+  bool flag_4B_reversed = false;
+  bool flag_4C_reversed = true;
+  bool flag_5B_reversed = false;
+  bool flag_5C_reversed = true;
+  bool flag_6B_reversed = false;
+  bool flag_6C_reversed = true;
+  bool flag_7B_reversed = false;
+  bool flag_7C_reversed = true;
+  bool flag_8B_reversed = false;
+  bool flag_8C_reversed = true;
+  
 
 long currentMove, currentTime;
 unsigned long currentMillis;
@@ -928,19 +939,19 @@ void loop()
                 }
                 if (flag_3C_reversed == false)
                 {
-                    if((currentMillis-startVal) < 1600) //turn right 1.6 seconds
+                    if((currentMillis-startVal) < 600) //turn right .6 seconds
                     {
                       servo_RightMotor.writeMicroseconds(1300);
                       servo_LeftMotor.writeMicroseconds(1700);
                       Serial.println("case3B");
                     }
-                    else if((currentMillis-startVal)> 1600 && (currentMillis-startVal) < 2000)//drive straight .4 seconds
+                    else if((currentMillis-startVal)> 600 && (currentMillis-startVal) < 1000)//drive straight .4 seconds
                     {
                       servo_RightMotor.writeMicroseconds(1600);
                       servo_LeftMotor.writeMicroseconds(1600); 
                       Serial.println("case3C");
                     }
-                    else if((currentMillis-startVal) > 2000)
+                    else if((currentMillis-startVal) > 1000)
                     {
                       flag_3B_reversed = false;
                       flag_3C_reversed = true;
@@ -949,6 +960,43 @@ void loop()
                 }
             }    
           }
+            if (currentMove == 4 && B == false)
+            {
+           servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+           servo_RightMotor.writeMicroseconds(Motor_Stop);
+            
+            flag_4B_reversed = true; 
+          
+            if (flag_4B_reversed == true)
+            {
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+                if(flag_4C_reversed == true) // start timer
+                {
+                  startVal = currentMillis;
+                  flag_4C_reversed = false;
+                }
+                if (flag_4C_reversed == false)
+                {
+                    if((currentMillis-startVal) < 400) //turn right 90deg
+                    {
+                      servo_RightMotor.writeMicroseconds(1300);
+                      servo_LeftMotor.writeMicroseconds(1700);
+                      Serial.println("case4B_reversed");
+                    }
+                    else if((currentMillis-startVal) > 400)
+                    {
+                      flag_4B_reversed = false;
+                      flag_4C_reversed = true;
+                    }
+                }
+             }
+           }
+          
+          
+          
+          
           if (stack_empty == true)
           {
             Serial.println("Stopping2...");
