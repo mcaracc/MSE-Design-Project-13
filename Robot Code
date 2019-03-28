@@ -82,18 +82,6 @@ unsigned long ultrasonic1;
 unsigned long ultrasonic2;
 unsigned long ultrasonic3;
 
-// Charlieplexing LED assignments
-const int ci_Heartbeat_LED = 1;
-const int ci_Indicator_LED = 4;
-
-//constants
-
-// EEPROM addresses
-const int ci_Left_Motor_Offset_Address_L = 12;
-const int ci_Left_Motor_Offset_Address_H = 13;
-const int ci_Right_Motor_Offset_Address_L = 14;
-const int ci_Right_Motor_Offset_Address_H = 15;
-
 const int Motor_Stop = 1500;        // 200 for brake mode; 1500 for stop
 const int Motor_Brake = 200;
 const int ci_Scooper_Motor_Up = 160;
@@ -102,9 +90,6 @@ const int ci_Scooper_Motor_Down = 65;
 const int ul_front_D = 25;
 const int ul_side_D = 26;
 
-const int ci_Motor_Calibration_Cycles = 3;
-const int ci_Motor_Calibration_Time = 5000;
-
 //variables
 unsigned int ui_Motors_Speed = 1900;        // Default run speed
 unsigned int ui_Left_Motor_Speed;
@@ -112,10 +97,7 @@ unsigned int ui_Right_Motor_Speed;
 
 unsigned long ul_3_Second_timer = 0;
 unsigned long ul_45_Second_timer = 0;
-unsigned long ul_Display_Time;
-unsigned long ul_Calibration_Time;
 
-unsigned int ui_Cal_Count;
 unsigned int ui_Cal_Cycle;
 
 unsigned int  ui_Robot_State_Index = 0;
@@ -826,7 +808,6 @@ void loop()
                     }
                 }
              }
-             
         }
       }  
       else if (bt_45_S_Time_Up == true) //begin first return home 
@@ -966,8 +947,7 @@ void loop()
                       break;
                     }
                 }
-          }
-                
+            }    
           }
           if (stack_empty == true)
           {
@@ -982,31 +962,12 @@ void loop()
       } 
     case 2:
     {
-      
-       
-        
       ui_Mode_Indicator_Index = 2; 
       break;
-    }
-    
-    case 3:
-    {
-      ui_Mode_Indicator_Index = 3;
-      break;
-    }
-      
+    } 
   }
 } 
 
-// set mode indicator LED state
-void Indicator()
-{
-  //display routine, if true turn on led
-  CharliePlexM::Write(ci_Indicator_LED,!(ui_Mode_Indicator[ui_Mode_Indicator_Index] & 
-                      (iArray[iArrayIndex])));
-  iArrayIndex++;
-  iArrayIndex = iArrayIndex & 15;
-}
 
 
 // measure distance to target using ultrasonic sensor  
@@ -1019,23 +980,22 @@ void Ping()
  echo2 = sonar2.ping_median(iterations); // Measure duration for second sensor (left)
  echo3 = sonar3.ping_median(iterations); // Measure duration for third sensor (right)
  
-  // Calculate the distances for three sensors
-  ultrasonic1 = (echo1 / 2) * soundcm;
-  ultrasonic2 = (echo2 / 2) * soundcm;
-  ultrasonic3 = (echo3 / 2) * soundcm;
+ // Calculate the distances for three sensors
+ ultrasonic1 = (echo1 / 2) * soundcm;
+ ultrasonic2 = (echo2 / 2) * soundcm;
+ ultrasonic3 = (echo3 / 2) * soundcm;
 }
 
 void Infrared()
 {
-  
     if (mySerial.available())
-  {
-    int x = mySerial.read();
-    Serial.println(x);
-    if ( x >= 48 && x <= 51|| x >= 248 && x <= 255)
     {
-      Serial.println("light found");
-    }
+      int x = mySerial.read();
+      Serial.println(x);
+      if ( x >= 48 && x <= 51|| x >= 248 && x <= 255)
+      {
+        Serial.println("light found");
+      }
     else
     {
       Serial.println("light NOT found");
