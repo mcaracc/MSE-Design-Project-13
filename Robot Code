@@ -1058,13 +1058,13 @@ void loop()
                 }
                 if (flag_6C_reversed == false)
                 {
-                     if((currentMillis-startVal) < 400) turn left 90deg
+                     if((currentMillis-startVal) < 400) //turn left 90deg
                     {
                       servo_RightMotor.writeMicroseconds(1700);
                       servo_LeftMotor.writeMicroseconds(1300);
                       Serial.println("case6B_reversed");
                     }
-                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 800) drive stright 0.4s
+                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 800) //drive stright 0.4s
                     {
                       servo_RightMotor.writeMicroseconds(1600);
                       servo_LeftMotor.writeMicroseconds(1600);
@@ -1097,13 +1097,13 @@ void loop()
                 }
                 if (flag_7C_reversed == false)
                 {
-                     if((currentMillis-startVal) < 400) turn right 90deg
+                     if((currentMillis-startVal) < 400) //turn right 90deg
                     {
                       servo_RightMotor.writeMicroseconds(1300);
                       servo_LeftMotor.writeMicroseconds(1700);
                       Serial.println("case7B_reversed");
                     }
-                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 800) drive stright 0.4s
+                    else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 800) //drive stright 0.4s
                     {
                       servo_RightMotor.writeMicroseconds(1600);
                       servo_LeftMotor.writeMicroseconds(1600);
