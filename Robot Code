@@ -823,6 +823,19 @@ void loop()
       }  
       else if (bt_45_S_Time_Up == true) //begin first return home 
       {
+        // save case 1 if its running while timer ends
+        if (A == false)
+            {
+              endTime = millis();
+              Serial.print("endTime: ");
+              Serial.println(endTime);
+              Movement T;
+              T.move = 1;
+              T.time = endTime - startTime;
+              stack.push(T); 
+              A = true;
+              Serial.println("saved");
+            } 
         
         Serial.println("transverse");
         // flag to check if stack is empty: 0 = full, 1 = empty
