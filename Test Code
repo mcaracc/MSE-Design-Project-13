@@ -365,6 +365,7 @@ void loop()
           servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
           Serial.println("hard code done");
           x = false;
+          flag_1 = true; 
         } 
        } 
       }
@@ -382,7 +383,7 @@ void loop()
             Serial.print(" Ultrasonic 3: ");
             Serial.println(ultrasonic3);
               
-            if ( (ultrasonic1 > ul_front_D) && (ultrasonic2 > ul_side_D) && (ultrasonic3 > ul_side_D) && flag_1 == true) //Case 1: no objects nearby, drive straight 
+            if ( ((ultrasonic1) > ul_front_D) && ((ultrasonic2) > ul_side_D) && ((ultrasonic3) > ul_side_D) && flag_1 == true) //Case 1: no objects nearby, drive straight 
             {
               //servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
               if (A == true)
