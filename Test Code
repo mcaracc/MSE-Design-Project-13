@@ -23,7 +23,7 @@ class Movement
     unsigned long time;
 };
   StackArray <Movement> stack;
-  int stackSize;
+  unsigned int stackSize;
  
  SoftwareSerial mySerial(2, 13); // RX, TX
  
@@ -83,10 +83,10 @@ const int ci_Motor_Enable_Switch = 12;
 const int ci_I2C_SDA = A4;         // I2C data = white
 const int ci_I2C_SCL = A5;         // I2C clock = yellow
 
-unsigned long ultrasonic1;
-unsigned long ultrasonic2;
-unsigned long ultrasonic3;
-unsigned long ultrasonic4;
+unsigned int ultrasonic1;
+unsigned int ultrasonic2;
+unsigned int ultrasonic3;
+unsigned int ultrasonic4;
 
 const int Motor_Stop = 1500;        // 200 for brake mode; 1500 for stop
 //const int Motor_Brake = 200;
@@ -101,7 +101,7 @@ const int ul_side_D = 26;
 unsigned int ui_Left_Motor_Speed;
 unsigned int ui_Right_Motor_Speed;
 
-unsigned long ul_3_Second_timer = 0;
+unsigned int ul_3_Second_timer = 0;
 
 unsigned int ui_Cal_Cycle;
 
@@ -130,15 +130,34 @@ boolean bt_Cal_Initialized = false;
 
 //flags
   bool flag_1 = true; 
+  
   bool flag_2A = true; 
+  bool flag_2B = false; 
+  bool flag_2C = true; 
+  
   bool flag_3A = true; 
+  bool flag_3B = false; 
+  bool flag_3C = true; 
+
   bool flag_4A = true;
+  bool flag_4B = false; 
+  bool flag_4C = true; 
+
   bool flag_5A = true;
+  bool flag_5B = false; 
+  bool flag_5C = true; 
+
   bool flag_6A = true;
+  bool flag_6B = false; 
+  bool flag_6C = true; 
+
   bool flag_7A = true;
+  bool flag_7B = false; 
+  bool flag_7C = true; 
+
   bool flag_8A = true;
-  bool case_B = false;
-  bool case_C = false;
+  bool flag_8B = false; 
+  bool flag_8C = true; 
   
   bool A = true;
   bool B = true;
@@ -165,7 +184,8 @@ boolean bt_Cal_Initialized = false;
 
   bool x = true;
 
-long currentMove, currentTime;
+unsigned int currentMove;
+unsigned long currentTime;
 unsigned long currentMillis;
 unsigned long startVal;
 unsigned long startTime, endTime;
@@ -238,7 +258,6 @@ void loop()
   {
     case 0: //Robot stopped
     {
-      Serial.println("nothing...");
       Ping();
       servo_LeftMotor.writeMicroseconds(Motor_Stop); 
       servo_RightMotor.writeMicroseconds(Motor_Stop);
@@ -248,8 +267,6 @@ void loop()
       Serial.println(ultrasonic2 );
       Serial.print(" Ultrasonic 3: ");
       Serial.println(ultrasonic3 );
-      
-      ui_Mode_Indicator_Index = 0;
       break;
     } 
   
@@ -257,34 +274,14 @@ void loop()
     {
       Serial.print("Stack size: ");
       Serial.println(stackSize);
-      if ( Stack1 == true)
-      {
-        Serial.println("Phase 1...");
-      }
-      else if ( Stack2 == true)
-      {
-        Serial.println("Phase 2...");
-      }
-      else if ( Stack3 == true)
-      {
-        Serial.println("Phase 3...");
-      }
-      if ( stackSize > 2 && Stack1 == true)
+      if ( stackSize > 3 && Stack1 == true)
       { 
-        Serial.println("Phase 2 starting...");
         Stack1 = false;
         Stack2 = true;
-      }
-      if ( stackSize == 1 && Stack1 == false && Stack2 == true)
+      }    
+      if ( stackSize == 0 && Stack1 == false && Stack2 == true)
       {
-        Serial.println("Phase 3 starting...");
         Stack2 == false;
-        Stack3 == true;
-      }      
-      if ( stackSize == 0 && Stack1 == false && Stack2 == false && Stack3 == true)
-      {
-        Serial.println("resetting Phase 1...");
-        Stack3 == false;
         Stack1 == true;
       }
       
@@ -301,18 +298,15 @@ void loop()
               startTime = millis(); // start time
               flag_1 = false;
             }
-            servo_RightMotor.writeMicroseconds(1800); // go forward
-            servo_LeftMotor.writeMicroseconds(1800);
+            servo_RightMotor.writeMicroseconds(1700); // go forward
+            servo_LeftMotor.writeMicroseconds(1700);
           }
           else if ( (ultrasonic1 > 1) && (ultrasonic1 < ul_front_D) && A == true )
           {
-            Serial.println("stopping...");
             servo_RightMotor.writeMicroseconds(1500); // stop
             servo_LeftMotor.writeMicroseconds(1500);
             endTime = millis(); // end time
             currentTime = endTime - startTime;
-            Serial.print("time: ");
-            Serial.println(currentTime);
             A = false;
           }
           if (A == false && B == true)
@@ -326,8 +320,8 @@ void loop()
             if (newStartTime < newEndTime)
             {
               Serial.println("backing up...");
-              servo_RightMotor.writeMicroseconds(1200); // go backward
-              servo_LeftMotor.writeMicroseconds(1200);
+              servo_RightMotor.writeMicroseconds(1300); // go backward
+              servo_LeftMotor.writeMicroseconds(1300);
             }
             else
             {
@@ -339,13 +333,11 @@ void loop()
         }
         if (A == false && B == false)
         {
-          Serial.println("dumping...");
           Serial.println("going up...");
           //servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Up);
           delay(2000);
           Serial.println("going down...");
           //servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
-          Serial.println("hard code done");
           x = false;
           flag_1 = true; 
         } 
@@ -371,14 +363,12 @@ void loop()
               {
                 startTime = millis();
                 A = false;
-                Serial.print("startTime: ");
-                Serial.println(startTime);
               }
               Serial.print('\n');
               Serial.println("case1");
     
-              servo_RightMotor.writeMicroseconds(1600);
-              servo_LeftMotor.writeMicroseconds(1600); 
+              servo_RightMotor.writeMicroseconds(1700);
+              servo_LeftMotor.writeMicroseconds(1700); 
             }
             
             else if ( ((ultrasonic1) <= ul_front_D && (ultrasonic1) > 1)  && ((ultrasonic2) <= ul_side_D) && ((ultrasonic2) > 1) && ((ultrasonic3) <= ul_side_D) && ((ultrasonic3) > 1) && flag_2A == true) //Case 2: object in front, AND object on left, AND object on right. back up turn 180deg
@@ -391,8 +381,6 @@ void loop()
               if (A == false)
               {
                 endTime = millis();
-                Serial.print("endTime: ");
-                Serial.println(endTime);
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
@@ -402,7 +390,6 @@ void loop()
                 Serial.println(stackSize); 
            
                 A = true;
-                Serial.println("saved");
               } 
               flag_2A = false;
               flag_3A = false;
@@ -412,19 +399,17 @@ void loop()
               flag_7A = false;
               flag_8A = false;
             
-              case_B = true;    
+              flag_2B = true;    
             }
-              if (case_B == true)
+              if (flag_2B == true)
               {
                 currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.println(currentMillis);
-                  if(case_C == true) // start timer
+                  if(flag_2C == true) // start timer
                   {
                     startVal = currentMillis;
-                    case_C = false;
+                    flag_2C = false;
                   }
-                  if (case_C == false)
+                  if (flag_2C == false)
                   {
                       if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
                       {
@@ -449,8 +434,8 @@ void loop()
                         flag_7A = true;
                         flag_8A = true;
     
-                        case_B = false;
-                        case_C = true;
+                        flag_2B = false;
+                        flag_2C = true;
   
                         Movement T;
                         T.move = 2;
@@ -473,8 +458,6 @@ void loop()
               if (A == false)
               {
                 endTime = millis();
-                Serial.print("endTime: ");
-                Serial.println(endTime);
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
@@ -494,19 +477,19 @@ void loop()
               flag_8A = false;
     
               
-              case_B = true; 
+              flag_3B = true; 
             }
-              if (case_B == true)
+              if (flag_3B == true)
               {
                 currentMillis = millis();
                 //Serial.print ("Millis: ");
                 //Serial.println(currentMillis);
-                  if(case_C == true) // start timer
+                  if(flag_3C == true) // start timer
                   {
                     startVal = currentMillis;
-                    case_C = false;
+                    flag_3C = false;
                   }
-                  if (case_C == false)
+                  if (flag_3C == false)
                   {
                       if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
                       {
@@ -532,8 +515,8 @@ void loop()
                         flag_7A = true;
                         flag_8A = true;
                         
-                        case_B = false;
-                        case_C = true;
+                        flag_3B = false;
+                        flag_3C = true;
   
                         Movement T;
                         T.move = 3;
@@ -576,19 +559,19 @@ void loop()
               flag_7A = false;
               flag_8A = false;
               
-              case_B = true; 
+              flag_4B = true; 
             }
-              if (case_B == true)
+              if (flag_4B == true)
               {
                 currentMillis = millis();
                 //Serial.print ("Millis: ");
                 //Serial.println(currentMillis);
-                  if(case_C == true) // start timer
+                  if(flag_4C == true) // start timer
                   {
                     startVal = currentMillis;
-                    case_C = false;
+                    flag_4C = false;
                   }
-                  if (case_C == false)
+                  if (flag_4C == false)
                   {
                       if((currentMillis-startVal) < 400) //turn left 90deg
                       {
@@ -607,8 +590,8 @@ void loop()
                         flag_7A = true;
                         flag_8A = true;
                         
-                        case_B = false;
-                        case_C = true;
+                        flag_4B = false;
+                        flag_4C = true;
   
                         Movement T;
                         T.move = 4;
@@ -651,20 +634,20 @@ void loop()
               flag_7A = false;
               flag_8A = false;
               
-              case_B = true; 
+              flag_5B = true; 
             }
-              if (case_B == true)
+              if (flag_5B == true)
               {
                 currentMillis = millis();
                 //Serial.print ("Millis: ");
                 //Serial.print (currentMillis);
                 //Serial.print('\n')
-                  if(case_C == true) // start timer
+                  if(flag_5C == true) // start timer
                   {
                     startVal = currentMillis;
-                    case_C = false;
+                    flag_5C = false;
                   }
-                  if (case_C == false)
+                  if (flag_5C == false)
                   {
                       if((currentMillis-startVal) < 400) //turn right 90deg
                       {
@@ -683,8 +666,8 @@ void loop()
                         flag_7A = true;
                         flag_8A = true;
                         
-                        case_B = false;
-                        case_C = true;
+                        flag_5B = false;
+                        flag_5C = true;
   
                         Movement T;
                         T.move = 5;
@@ -727,19 +710,19 @@ void loop()
               flag_7A = false;
               flag_8A = false;
               
-              case_B = true; 
+              flag_6B = true; 
             }
-              if (case_B == true)
+              if (flag_6B == true)
               {
                 currentMillis = millis();
                 //Serial.print ("Millis: ");
                 //Serial.println(currentMillis);
-                  if(case_C == true) // start timer
+                  if(flag_6C == true) // start timer
                   {
                     startVal = currentMillis;
-                    case_C = false;
+                    flag_6C = false;
                   }
-                  if (case_C == false)
+                  if (flag_6C == false)
                   {
                       if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
                       {
@@ -764,8 +747,8 @@ void loop()
                         flag_7A = true;
                         flag_8A = true;
                         
-                        case_B = false;
-                        case_C = true;
+                        flag_6B = false;
+                        flag_6C = true;
   
                         Movement T;
                         T.move = 6;
@@ -808,19 +791,19 @@ void loop()
               flag_7A = false;
               flag_8A = false;
               
-              case_B = true; 
+              flag_7B = true; 
             }
-              if (case_B == true)
+              if (flag_7B == true)
               {
                 currentMillis = millis();
                 //Serial.print ("Millis: ");
                 //Serial.println(currentMillis);
-                  if(case_C == true) // start timer
+                  if(flag_7C == true) // start timer
                   {
                     startVal = currentMillis;
-                    case_C = false;
+                    flag_7C = false;
                   }
-                  if (case_C == false)
+                  if (flag_7C == false)
                   {
                       if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
                       {
@@ -845,8 +828,8 @@ void loop()
                         flag_7A = true;
                         flag_8A = true;
                         
-                        case_B = false;
-                        case_C = true;
+                        flag_7B = false;
+                        flag_7C = true;
   
                         Movement T;
                         T.move = 7;
@@ -889,19 +872,19 @@ void loop()
               flag_7A = false;
               flag_8A = false;
             
-              case_B = true;    
+              flag_8B = true;    
             }
-              if (case_B == true)
+              if (flag_8B == true)
               {
                 currentMillis = millis();
                 //Serial.print ("Millis: ");
                 //Serial.println(currentMillis);
-                  if(case_C == true) // start timer
+                  if(flag_8C == true) // start timer
                   {
                     startVal = currentMillis;
-                    case_C = false;
+                    flag_8C = false;
                   }
-                  if (case_C == false)
+                  if (flag_8C == false)
                   {
                       if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
                       {
@@ -926,8 +909,8 @@ void loop()
                         flag_7A = true;
                         flag_8A = true;
     
-                        case_B = false;
-                        case_C = true;
+                        flag_8B = false;
+                        flag_8C = true;
   
                         Movement T;
                         T.move = 8;
@@ -946,8 +929,6 @@ void loop()
           if (A == false)
               {
                 endTime = millis();
-                Serial.print("endTime: ");
-                Serial.println(endTime);
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
@@ -956,24 +937,16 @@ void loop()
                 Serial.print("Stack size: ");
                 Serial.println(stackSize); 
                 A = true;
-                Serial.println("saved");
               } 
           
           Serial.println("transverse");
           // flag to check if stack is empty: 0 = full, 1 = empty
-          bool stack_empty;
-          if (stackSize > 1)
-          {
-            stack_empty = false;
-          }
-          else if (stackSize = 1)
-          {
-            stack_empty = true;
-          }
+          bool stack_empty = stack.isEmpty();
           Serial.print("size: ");
           Serial.println(stackSize);
           Serial.print("stack flag: ");
           Serial.println(stack_empty);
+          B = true;
           
   
             if (B == true && stack_empty == false)
@@ -982,7 +955,7 @@ void loop()
               Movement lastMove;
               lastMove = stack.pop();
               stackSize = stack.count();
-              Serial.print("Stack size: ");
+              Serial.print("Stack Size: ");
               Serial.println(stackSize); 
               currentMove = lastMove.move;
               currentTime = lastMove.time;
@@ -1015,10 +988,10 @@ void loop()
                    Serial.print("newEndTime2: ");
                    Serial.println(newEndTime);
                    Serial.println("backing up...");
-                   servo_RightMotor.writeMicroseconds(1400);
-                   servo_LeftMotor.writeMicroseconds(1400);
+                   servo_RightMotor.writeMicroseconds(1300);
+                   servo_LeftMotor.writeMicroseconds(1300);
                  }
-                 else
+                 else 
                  {
                     Serial.println("Stopping1...");
                    servo_RightMotor.writeMicroseconds(1500);
@@ -1114,8 +1087,7 @@ void loop()
               if (flag_4B_reversed == true)
               {
                 currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.println(currentMillis);
+
                   if(flag_4C_reversed == true) // start timer
                   {
                     startVal = currentMillis;
@@ -1308,13 +1280,7 @@ void loop()
       }
         ui_Mode_Indicator_Index = 1;
         break;
-      } 
-    case 2:
-    {
-      
-      
-      break;
-    } 
+      }  
   }
 } 
 
