@@ -22,8 +22,8 @@ class Movement
     int move;
     unsigned long time;
 };
- StackArray <Movement> stack;
-int stackSize = stack.count();
+  StackArray <Movement> stack;
+  int stackSize;
  
  SoftwareSerial mySerial(2, 13); // RX, TX
  
@@ -89,20 +89,19 @@ unsigned long ultrasonic3;
 unsigned long ultrasonic4;
 
 const int Motor_Stop = 1500;        // 200 for brake mode; 1500 for stop
-const int Motor_Brake = 200;
-const int ci_Scooper_Motor_Up = 160;
+//const int Motor_Brake = 200;
+//const int ci_Scooper_Motor_Up = 160;
 const int ci_Scooper_Motor_Down = 65;
 
 const int ul_front_D = 25;
 const int ul_side_D = 26;
 
 //variables
-unsigned int ui_Motors_Speed = 1900;        // Default run speed
+//unsigned int ui_Motors_Speed = 1900;        // Default run speed
 unsigned int ui_Left_Motor_Speed;
 unsigned int ui_Right_Motor_Speed;
 
 unsigned long ul_3_Second_timer = 0;
-unsigned long ul_45_Second_timer = 0;
 
 unsigned int ui_Cal_Cycle;
 
@@ -126,7 +125,6 @@ int  iArrayIndex = 0;
 
 boolean bt_Heartbeat = true;
 boolean bt_3_S_Time_Up = false;
-boolean bt_45_S_Time_Up = false;
 boolean bt_Do_Once = false;
 boolean bt_Cal_Initialized = false;
 
@@ -225,11 +223,6 @@ void loop()
   {
     bt_3_S_Time_Up = true;
   }
-  //45 second timer flag
-  if ( (millis() - ul_45_Second_timer) > 20000)
-  {
-     bt_45_S_Time_Up = true;
-  }
 
   // button-based mode selection
   if(CharliePlexM::ui_Btn)
@@ -268,12 +261,12 @@ void loop()
       Ping();
       servo_LeftMotor.writeMicroseconds(Motor_Stop); 
       servo_RightMotor.writeMicroseconds(Motor_Stop);
-//      Serial.print(" Ultrasonic 1: ");
-//      Serial.println(ultrasonic1 );
-//      Serial.print(" Ultrasonic 2: ");
-//      Serial.println(ultrasonic2 );
-//      Serial.print(" Ultrasonic 3: ");
-//      Serial.println(ultrasonic3 );
+      Serial.print(" Ultrasonic 1: ");
+      Serial.println(ultrasonic1 );
+      Serial.print(" Ultrasonic 2: ");
+      Serial.println(ultrasonic2 );
+      Serial.print(" Ultrasonic 3: ");
+      Serial.println(ultrasonic3 );
       
       ui_Mode_Indicator_Index = 0;
       break;
@@ -287,15 +280,23 @@ void loop()
       {
         Serial.println("Phase 1...");
       }
-      if ( stackSize > 4 && Stack1 == true)
-      { 
+      else if ( Stack2 == true)
+      {
         Serial.println("Phase 2...");
+      }
+      else if ( Stack3 == true)
+      {
+        Serial.println("Phase 3...");
+      }
+      if ( stackSize > 2 && Stack1 == true)
+      { 
+        Serial.println("Phase 2 starting...");
         Stack1 = false;
         Stack2 = true;
       }
       if ( stackSize == 1 && Stack1 == false && Stack2 == true)
       {
-        Serial.println("Phase 3...");
+        Serial.println("Phase 3 starting...");
         Stack2 == false;
         Stack3 == true;
       }      
@@ -359,10 +360,10 @@ void loop()
         {
           Serial.println("dumping...");
           Serial.println("going up...");
-          servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Up);
+          //servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Up);
           delay(2000);
           Serial.println("going down...");
-          servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
+          //servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
           Serial.println("hard code done");
           x = false;
           flag_1 = true; 
@@ -371,7 +372,6 @@ void loop()
       }
       if (x == false)
        {
-        Serial.println(" random motion started");
         if (Stack1 == true)
         {
             Ping();
@@ -415,7 +415,10 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
-                stack.push(T); 
+                stack.push(T);
+                stackSize = stack.count();
+                Serial.print("Stack size: ");
+                Serial.println(stackSize); 
            
                 A = true;
                 Serial.println("saved");
@@ -472,6 +475,9 @@ void loop()
                         T.move = 2;
                         T.time = 1200;
                         stack.push(T);
+                        stackSize = stack.count();
+                        Serial.print("Stack size: ");
+                        Serial.println(stackSize); 
                       }
                   }
                }
@@ -491,7 +497,10 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
-                stack.push(T); 
+                stack.push(T);
+                stackSize = stack.count();
+                Serial.print("Stack size: ");
+                Serial.println(stackSize);  
                 A = true;
                 Serial.println("saved");
               } 
@@ -549,6 +558,9 @@ void loop()
                         T.move = 3;
                         T.time = 1000;
                         stack.push(T);
+                        stackSize = stack.count();
+                        Serial.print("Stack size: ");
+                        Serial.println(stackSize); 
                       }
                   }
                }
@@ -568,7 +580,10 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
-                stack.push(T); 
+                stack.push(T);
+                stackSize = stack.count();
+                Serial.print("Stack size: ");
+                Serial.println(stackSize); 
                 A = true;
                 Serial.println("saved");
               }  
@@ -618,6 +633,9 @@ void loop()
                         T.move = 4;
                         T.time = 400;
                         stack.push(T);
+                        stackSize = stack.count();
+                        Serial.print("Stack size: ");
+                        Serial.println(stackSize); 
                       }
                   }
                }
@@ -637,7 +655,10 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
-                stack.push(T); 
+                stack.push(T);
+                stackSize = stack.count();
+                Serial.print("Stack size: ");
+                Serial.println(stackSize); 
                 A = true;
                 Serial.println("saved");
               }  
@@ -688,6 +709,9 @@ void loop()
                         T.move = 5;
                         T.time = 400;
                         stack.push(T);
+                        stackSize = stack.count();
+                        Serial.print("Stack size: ");
+                        Serial.println(stackSize); 
                       }
                   }
                }
@@ -707,7 +731,10 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
-                stack.push(T); 
+                stack.push(T);
+                stackSize = stack.count();
+                Serial.print("Stack size: ");
+                Serial.println(stackSize);  
                 A = true;
                 Serial.println("saved");
               }  
@@ -763,6 +790,9 @@ void loop()
                         T.move = 6;
                         T.time = 800;
                         stack.push(T);
+                        stackSize = stack.count();
+                        Serial.print("Stack size: ");
+                        Serial.println(stackSize); 
                       }
                   }
                }
@@ -782,7 +812,10 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
-                stack.push(T); 
+                stack.push(T);
+                stackSize = stack.count();
+                Serial.print("Stack size: ");
+                Serial.println(stackSize);  
                 A = true;
                 Serial.println("saved");
               }  
@@ -838,6 +871,9 @@ void loop()
                         T.move = 7;
                         T.time = 800;
                         stack.push(T);
+                        stackSize = stack.count();
+                        Serial.print("Stack size: ");
+                        Serial.println(stackSize); 
                       }
                   }
                }
@@ -857,7 +893,10 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
-                stack.push(T); 
+                stack.push(T);
+                stackSize = stack.count();
+                Serial.print("Stack size: ");
+                Serial.println(stackSize);  
                 A = true;
                 Serial.println("saved");
               } 
@@ -913,11 +952,14 @@ void loop()
                         T.move = 8;
                         T.time = 1200;
                         stack.push(T);
+                        stackSize = stack.count();
+                        Serial.print("Stack size: ");
+                        Serial.println(stackSize); 
                       }
                   }
                }
           }  
-        else if (Stack2 = true) //begin first return home 
+        else if (Stack2 == true) //begin first return home 
         {
           // save case 1 if its running while timer ends
           if (A == false)
@@ -928,7 +970,10 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
-                stack.push(T); 
+                stack.push(T);
+                stackSize = stack.count();
+                Serial.print("Stack size: ");
+                Serial.println(stackSize); 
                 A = true;
                 Serial.println("saved");
               } 
@@ -955,6 +1000,9 @@ void loop()
               Serial.println("saving Move");
               Movement lastMove;
               lastMove = stack.pop();
+              stackSize = stack.count();
+              Serial.print("Stack size: ");
+              Serial.println(stackSize); 
               currentMove = lastMove.move;
               currentTime = lastMove.time;
               Serial.print("currentMove: ");
@@ -1272,7 +1320,7 @@ void loop()
                 break;
             }
         }
-        else if (Stack3 = true)
+        else if (Stack3 == true)
         {
           
         }
