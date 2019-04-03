@@ -416,7 +416,7 @@ void Ping2()
 IR testing code
 #include <SoftwareSerial.h>
 
-SoftwareSerial mySerial(7, 11); // RX, TX
+SoftwareSerial mySerial(2, 11); // RX, TX
 
 void setup() {
 
