@@ -162,6 +162,7 @@ boolean bt_Cal_Initialized = false;
   bool A = true;
   bool B = true;
   bool C = true;
+  bool D = true;
 
   bool flag_2B_reversed = false;
   bool flag_2C_reversed = true;
@@ -183,6 +184,8 @@ boolean bt_Cal_Initialized = false;
   bool Stack3 = false;
 
   bool x = true;
+
+  bool stack_empty;
 
 unsigned int currentMove;
 unsigned long currentTime;
@@ -274,7 +277,7 @@ void loop()
     {
       Serial.print("Stack size: ");
       Serial.println(stackSize);
-      if ( stackSize > 3 && Stack1 == true)
+      if ( stackSize >= 2 && Stack1 == true)
       { 
         Stack1 = false;
         Stack2 = true;
@@ -338,8 +341,9 @@ void loop()
           delay(2000);
           Serial.println("going down...");
           //servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
-          x = false;
+          B = true;
           flag_1 = true; 
+          x = false;
         } 
        } 
       }
@@ -362,6 +366,8 @@ void loop()
               if (A == true)
               {
                 startTime = millis();
+                Serial.print("startTime: ");
+                Serial.println(startTime);
                 A = false;
               }
               Serial.print('\n');
@@ -381,9 +387,13 @@ void loop()
               if (A == false)
               {
                 endTime = millis();
+                Serial.print("endTime: ");
+                Serial.println(endTime);
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
+                Serial.print("Time: ");
+                Serial.println(endTime - startTime);
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
@@ -461,6 +471,8 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
+                Serial.print("Time: ");
+                Serial.println(endTime - startTime);
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
@@ -544,6 +556,8 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
+                Serial.print("Time: ");
+                Serial.println(endTime - startTime);
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
@@ -619,6 +633,8 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
+                Serial.print("Time: ");
+                Serial.println(endTime - startTime);
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
@@ -695,6 +711,8 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
+                Serial.print("Time: ");
+                Serial.println(endTime - startTime);
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
@@ -776,6 +794,8 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
+                Serial.print("Time: ");
+                Serial.println(endTime - startTime);
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
@@ -857,6 +877,8 @@ void loop()
                 Movement T;
                 T.move = 1;
                 T.time = endTime - startTime;
+                Serial.print("Time: ");
+                Serial.println(endTime - startTime);
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
@@ -941,13 +963,14 @@ void loop()
           
           Serial.println("transverse");
           // flag to check if stack is empty: 0 = full, 1 = empty
-          bool stack_empty = stack.isEmpty();
-          Serial.print("size: ");
-          Serial.println(stackSize);
-          Serial.print("stack flag: ");
-          Serial.println(stack_empty);
-          B = true;
-          
+
+          if (D == true) // check if stack is empty
+          {
+            stack_empty = stack.isEmpty();
+            Serial.print("stack flag: ");
+            Serial.println(stack_empty);
+            D = false;  
+          }
   
             if (B == true && stack_empty == false)
             {
@@ -991,12 +1014,13 @@ void loop()
                    servo_RightMotor.writeMicroseconds(1300);
                    servo_LeftMotor.writeMicroseconds(1300);
                  }
-                 else 
+                 else
                  {
                     Serial.println("Stopping1...");
                    servo_RightMotor.writeMicroseconds(1500);
                    servo_LeftMotor.writeMicroseconds(1500);
                    B = true;
+                   D = true;
                  }
               } 
               if (currentMove == 2 && B == false)
@@ -1119,9 +1143,8 @@ void loop()
               flag_5B_reversed = true;
               if (flag_5B_reversed == true)
               {
-                currentMillis = millis();
-                Serial.print ("Millis: ");
-                Serial.println(currentMillis);
+                currentMillis = millis()
+                ;
                   if(flag_5C_reversed == true) // start timer
                   {
                     startVal = currentMillis;
@@ -1309,13 +1332,11 @@ void Infrared()
 {
     if (mySerial.available())
     {
-      int x = mySerial.read();
-      Serial.println(x);
-      if ( x >= 48 && x <= 51|| x >= 248 && x <= 255)
+      if (mySerial.read() != NULL) //IR ON
       {
         Serial.println("light found");
       }
-    else
+    else if (
     {
       Serial.println("light NOT found");
     }
