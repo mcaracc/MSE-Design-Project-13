@@ -438,14 +438,20 @@ void setup() {
 void loop() { // run over and over
 
   if (mySerial.available())
-  {
-    int x = mySerial.read();
-    Serial.println(x);
-    if (x > 45 && x < 55)
     {
-      Serial.println("light found");
-    }
-  }
-
+      int x = mySerial.read();
+      Serial.println("Frequency: ");
+      Serial.println(x);
+      if ( x >= 48 && x <= 51 || x >= 248 && x <= 255)
+      {
+        Serial.println("light found");
+//        IR_ON = true; 
+      }
+      else
+      {
+        Serial.println("light NOT found");
+//        IR_ON = false;
+      }
+}
 }
 */
