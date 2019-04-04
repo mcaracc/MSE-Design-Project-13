@@ -187,8 +187,8 @@ bool Stack2 = false;
 
 bool x = true;
 bool IR_ON = false;
-bool case3_IR1 = false;
-bool case3_IR2 = true;
+bool IR1 = false;
+bool IR2 = true;
 
 bool comm_flag = true;
 
@@ -208,7 +208,7 @@ void setup()
 {
   Wire.begin();// Wire library required for I2CEncoder library
   Serial.begin(9600);
-mySerial.begin(2400);
+  mySerial.begin(2400);
   CharliePlexM::setBtn(ci_Charlieplex_LED1, ci_Charlieplex_LED2, ci_Charlieplex_LED3, ci_Charlieplex_LED4, ci_Mode_Button);
 
   // set up drive motors
@@ -274,14 +274,15 @@ void loop()
         servo_ScooperMotor.write(58);
         servo_LeftMotor.writeMicroseconds(Motor_Stop);
         servo_RightMotor.writeMicroseconds(Motor_Stop);
+        //        Serial.print(" nothing ");
         Serial.print(" Ultrasonic 1: ");
-//        Serial.print(ultrasonic1 );
-//        Serial.print('\t');
-//        Serial.print(ultrasonic2 );
-//        Serial.print('\t');
-//        Serial.print(ultrasonic3 );
-//        Serial.print('\t');
-//        Serial.println(ultrasonic4 );
+        Serial.print(ultrasonic1 );
+        Serial.print('\t');
+        Serial.print(ultrasonic2 );
+        Serial.print('\t');
+        Serial.print(ultrasonic3 );
+        Serial.print('\t');
+        Serial.println(ultrasonic4 );
         break;
       }
 
@@ -289,7 +290,6 @@ void loop()
       {
         Ping();
         Infrared();
-        Serial.println(IR_ON);
         servo_ScooperMotor.write(65);
         //Serial.print("Stack size: ");
         //Serial.println(stackSize);
@@ -298,6 +298,14 @@ void loop()
           Stack1 = false;
           Stack2 = true;
         }
+        if (Stack1)
+        {
+          //Serial.println("random motion...");
+        }
+        if (Stack2)
+        {
+          //Serial.println("random motion transversing...");
+        }
 
         if (x == true)
         {
@@ -305,87 +313,87 @@ void loop()
           {
             if (ultrasonic1 > ul_front_D && A == true) // go foward if nothing is at front
             {
-              //Serial.println("going forward...");
-              //              if (flag_1 == true)
-              //              {
-              //                startTime = millis(); // start time
-              //                flag_1 = false;
-              //              }
+              Serial.println("going forward...");
+              if (flag_1 == true)
+              {
+                startTime = millis(); // start time
+                flag_1 = false;
+              }
               servo_RightMotor.writeMicroseconds(1700); // go forward
               servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
             }
             else if ((ultrasonic1 < ul_front_D || ultrasonic2 < ul_side_D || ultrasonic3 < ul_side_D) && A == true )
             {
-              //Serial.println("time to go home");
-              A = false;
+              Serial.println("time to go home");
+//              A = false;
+//            }
+//            if (!A)
+//            {
+//              servo_RightMotor.writeMicroseconds(1500); // stop
+//              servo_LeftMotor.writeMicroseconds(1500);
+//              ReturnHome();
+//              if (!comm_flag)
+//              {
+//                A = true;
+//                x = false;
+//                comm_flag = true;
+//              }
+//            }
+                          endTime = millis(); // end time
+                          currentTime = endTime - startTime;
+                          A = false;
             }
-            if (!A)
-            {
-              servo_RightMotor.writeMicroseconds(1500); // stop
-              servo_LeftMotor.writeMicroseconds(1500);
-              ReturnHome();
-              if (!comm_flag)
-              {
-                A = true;
-                x = false;
-                comm_flag = true;
-              }
+                        if (A == false && B == true)
+                        {
+                          newStartTime = millis();
+                          if (C == true)
+                          {
+                            newEndTime = newStartTime + currentTime;
+                            C = false;
+                          }
+                          if (newStartTime < newEndTime)
+                          {
+                            Serial.println("backing up...");
+                            servo_RightMotor.writeMicroseconds(1300); // go backward
+                            servo_LeftMotor.writeMicroseconds(1300);
+                          }
+                          else
+                          {
+                            Serial.println("done backing up...");
+                            servo_RightMotor.writeMicroseconds(1500); //stop
+                            servo_LeftMotor.writeMicroseconds(1500);
+                            B = false;
+                          }
+                        }
+                        if (A == false && B == false)
+                        {
+                          servo_ScooperMotor.write(58);
+                          for (int i = 60; i < 160; i += 3)
+                          {
+                            delay(50);
+                            servo_ScooperMotor.write(i);
+                          }
+                          delay(1000);
+                          servo_ScooperMotor.write(65);
+                          Serial.println("going down...");
+                          x = false;
+                          B = true;
+                          A = true;
+                          flag_1 = true;
             }
-            //              endTime = millis(); // end time
-            //              currentTime = endTime - startTime;
-            //              A = false;
-            //}
-            //            if (A == false && B == true)
-            //            {
-            //              newStartTime = millis();
-            //              if (C == true)
-            //              {
-            //                newEndTime = newStartTime + currentTime;
-            //                C = false;
-            //              }
-            //              if (newStartTime < newEndTime)
-            //              {
-            //                Serial.println("backing up...");
-            //                servo_RightMotor.writeMicroseconds(1300); // go backward
-            //                servo_LeftMotor.writeMicroseconds(1300);
-            //              }
-            //              else
-            //              {
-            //                Serial.println("done backing up...");
-            //                servo_RightMotor.writeMicroseconds(1500); //stop
-            //                servo_LeftMotor.writeMicroseconds(1500);
-            //                B = false;
-            //              }
-            //            }
-            //            if (A == false && B == false)
-            //            {
-            //              servo_ScooperMotor.write(58);
-            //              for (int i = 60; i < 160; i += 3)
-            //              {
-            //                delay(50);
-            //                servo_ScooperMotor.write(i);
-            //              }
-            //              delay(1000);
-            //              servo_ScooperMotor.write(65);
-            //              Serial.println("going down...");
-            //              x = false;
-            //              B = true;
-            //              A = true;
-            //              flag_1 = true;
-            //}
           }
         }
         if (x == false)
         {
           if (Stack1 == true)
           {
- //        Serial.print(ultrasonic1 );
-//        Serial.print('\t');
-//        Serial.print(ultrasonic2 );
-//        Serial.print('\t');
-//        Serial.print(ultrasonic3 );
-//        Serial.print('\t');
-//        Serial.println(ultrasonic4 );
+            //        Serial.print(ultrasonic1 );
+            //        Serial.print('\t');
+            //        Serial.print(ultrasonic2 );
+            //        Serial.print('\t');
+            //        Serial.print(ultrasonic3 );
+            //        Serial.print('\t');
+            //        Serial.println(ultrasonic4 );
 
             if (ultrasonic1 > ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 > ul_side_D && flag_1 == true) //Case 1: no objects nearby, drive straight
             {
@@ -1030,7 +1038,7 @@ void loop()
                   Serial.println(newStartTime);
                   Serial.print("newEndTime2: ");
                   Serial.println(newEndTime);
-                  Serial.println("backing up...");
+                  Serial.println("backing up Case1 ...");
                   servo_RightMotor.writeMicroseconds(1300);
                   servo_LeftMotor.writeMicroseconds(1300);
                 }
@@ -1100,19 +1108,19 @@ void loop()
                   }
                   if (flag_3C_reversed == false)
                   {
-                    if ((currentMillis - startVal) < 600) //turn right .6 seconds
+                    if ((currentMillis - startVal) < 700) //turn right .6 seconds
                     {
-                      servo_RightMotor.writeMicroseconds(1300);
+                      servo_RightMotor.writeMicroseconds(1250);
                       servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
                       Serial.println("case3B");
                     }
-                    else if ((currentMillis - startVal) > 600 && (currentMillis - startVal) < 1000) //drive straight .4 seconds
+                    else if ((currentMillis - startVal) > 700 && (currentMillis - startVal) < 1100) //drive straight .4 seconds
                     {
                       servo_RightMotor.writeMicroseconds(1600);
                       servo_LeftMotor.writeMicroseconds(1600 + Left_Motor_Offset);
                       Serial.println("case3C");
                     }
-                    else if ((currentMillis - startVal) > 1000)
+                    else if ((currentMillis - startVal) > 1100)
                     {
                       flag_3B_reversed = false;
                       flag_3C_reversed = true;
@@ -1172,7 +1180,7 @@ void loop()
                   }
                   if (flag_5C_reversed == false)
                   {
-                    if ((currentMillis - startVal) < 400) //turn left 90deg
+                    if ((currentMillis - startVal) < 500) //turn left 90deg
                     {
                       Serial.print("time: ");
                       Serial.println(currentMillis - startVal);
@@ -1180,7 +1188,7 @@ void loop()
                       servo_LeftMotor.writeMicroseconds(1300);
                       Serial.println("case5B_reversed");
                     }
-                    else if ((currentMillis - startVal) > 400)
+                    else if ((currentMillis - startVal) > 500)
                     {
                       flag_5B_reversed = false;
                       flag_5C_reversed = true;
@@ -1311,14 +1319,14 @@ void loop()
             if (stack_empty == true)
             {
               ReturnHome();
-              if (comm_flag = false)
+              if (!comm_flag)
               {
+                Serial.println("Comm Flag False");
                 Stack1 = true;
                 Stack2 = false;
                 comm_flag = true;
               }
             }
-            ui_Mode_Indicator_Index = 1;
             break;
           }
         }
@@ -1355,29 +1363,59 @@ void Ping()
 void ReturnHome ()
 {
   //Serial.print("returning home... : ");
-  if (IR_ON == true && ultrasonic4 > ul_back_D) // Case 1: IR on, UL off. Drive backwards
+  if (IR_ON == true && ultrasonic4 > ul_back_D && IR1 == false) // Case 1: IR on, UL off. Drive backwards
   {
-    servo_RightMotor.writeMicroseconds(1400);
+    servo_RightMotor.writeMicroseconds(1390);
     servo_LeftMotor.writeMicroseconds(1400);
-    Serial.println("Backing up");
+    //Serial.println("Backing up");
   }
-  else if (IR_ON == false && ultrasonic4 > ul_back_D) //Case 2: IR OFF, UL off. Rotate 360
-  {
-    servo_RightMotor.writeMicroseconds(1700);
-    servo_LeftMotor.writeMicroseconds(1300);
-    Serial.println("Rotating 360");
-  }
-  else if (IR_ON == false && ultrasonic4 <= ul_back_D)// Case 3: IR OFF, UL on. Stop. Back up (go forward)
+  else if (IR_ON == false && ultrasonic4 > ul_back_D && IR1 == false) //Case 2: IR OFF, UL off. Rotate 360
   {
     servo_RightMotor.writeMicroseconds(1600);
-    servo_LeftMotor.writeMicroseconds(1600 + Left_Motor_Offset);
-    Serial.println("Driving forward to correct");
+    servo_LeftMotor.writeMicroseconds(1400);
+    //Serial.println("Rotating 360");
   }
-  else if (IR_ON == true && ultrasonic4 <= ul_back_D) // Case 4 / Last step : IR on, UL on. Stop, Dump.
+  else if (IR_ON == false && ultrasonic4 <= ul_back_D && IR1 == false)// Case 3: IR OFF, UL on. Stop. Back up (go forward)
+  {
+
+    IR1 = true;
+  }
+
+  if (IR1 == true)
+  {
+    currentMillis = millis();
+    IR2 = true;
+
+    if (IR2 == true) // start timer
+    {
+      startVal = currentMillis;
+      IR2 = false;
+    }
+    if (IR2 == false)
+    {
+      if ((currentMillis - startVal) < 800)
+      {
+        Serial.print("time: ");
+        Serial.println(currentMillis - startVal);
+        servo_RightMotor.writeMicroseconds(1600);
+        servo_LeftMotor.writeMicroseconds(1600 + Left_Motor_Offset);
+        //Serial.println("Driving Away");
+      }
+      else if ((currentMillis - startVal) > 800)
+      {
+        IR1 = false;
+        // IR2 = true;
+      }
+    }
+    //    servo_RightMotor.writeMicroseconds(1600);
+    //    servo_LeftMotor.writeMicroseconds(1600 + Left_Motor_Offset);
+    //    //Serial.println("Driving forward to correct");
+  }
+  else if (IR_ON == true && ultrasonic4 <= ul_back_D && IR1 == false) // Case 4 / Last step : IR on, UL on. Stop, Dump.
   {
     servo_RightMotor.writeMicroseconds(1500);
     servo_LeftMotor.writeMicroseconds(1500);
-    Serial.println("Dumping");
+    //Serial.println("Dumping");
     //dumping
     servo_ScooperMotor.write(58);
     for (int i = 60; i < 160; i += 3)
@@ -1396,18 +1434,27 @@ void Infrared()
 {
   if (mySerial.available())
   {
+    Serial.println("data found");
     int x = mySerial.read();
     Serial.println(x);
     if ((x >= 48 && x <= 57) || x == 66 || (x >= 248 && x <= 255))
     {
-      Serial.println("light found");
+      //Serial.println("light found!");
       IR_ON = true;
     }
     else
     {
-      Serial.println("light NOT found");
+      //Serial.println("light NOT found");
       IR_ON = false;
     }
+    while (mySerial.available()) {
+      int trash = mySerial.read();
+    }
+  }
+  else
+  {
+    //Serial.println("light NOT found");
+    IR_ON = false;
   }
   //    if (mySerial.available())
   //    {
