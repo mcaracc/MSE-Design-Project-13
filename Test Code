@@ -22,18 +22,18 @@ class Movement
     int move;
     unsigned long time;
 };
-  StackArray <Movement> stack;
-  unsigned int stackSize;
- 
- SoftwareSerial mySerial(2, 13); // RX, TX
- 
+StackArray <Movement> stack;
+unsigned int stackSize;
+
+SoftwareSerial mySerial(2, 13); // RX, TX
+
 // Uncomment keywords to enable debugging output
-  //#define DEBUG_MODE_DISPLAY
-  //#define DEBUG_MOTORS
-  //#define DEBUG_ENCODERS
-  //#define DEBUG_ULTRASONIC
-  //#define DEBUG_LINE_TRACKER_CALIBRATION
-  //#define DEBUG_MOTOR_CALIBRATION
+//#define DEBUG_MODE_DISPLAY
+//#define DEBUG_MOTORS
+//#define DEBUG_ENCODERS
+//#define DEBUG_ULTRASONIC
+//#define DEBUG_LINE_TRACKER_CALIBRATION
+//#define DEBUG_MOTOR_CALIBRATION
 
 boolean bt_Motors_Enabled = true;
 #define Ultrasonic_Ping1  A0
@@ -72,7 +72,7 @@ const int ci_Mode_Button = 7;
 const int ci_Right_Motor = 8;
 const int ci_Left_Motor = 9;
 const int ci_Scooper_Motor = 10;
-const int ci_Sweeper_Motor = 11; 
+const int ci_Sweeper_Motor = 11;
 const int ci_Motor_Enable_Switch = 12;
 //const int (insert motor / sensor here) = 13;
 //const int Ultrasonic_Ping2 = A1; //input plug
@@ -80,6 +80,7 @@ const int ci_Motor_Enable_Switch = 12;
 //const int Ultrasonic_Ping3 = A2; //input plug
 //const int Ultrasonic_Data3 = A2; //output plug
 //const int Ultrasonic_Ping4 = A3;
+//const int Ultrasonic_Data3 = A3; //output plug
 const int ci_I2C_SDA = A4;         // I2C data = white
 const int ci_I2C_SCL = A5;         // I2C clock = yellow
 
@@ -90,11 +91,12 @@ unsigned int ultrasonic4;
 
 const int Motor_Stop = 1500;        // 200 for brake mode; 1500 for stop
 //const int Motor_Brake = 200;
-//const int ci_Scooper_Motor_Up = 160;
+const int ci_Scooper_Motor_Up = 160;
 const int ci_Scooper_Motor_Down = 65;
 
-const int ul_front_D = 25;
-const int ul_side_D = 26;
+const int ul_front_D = 29;
+const int ul_side_D = 31;
+const int ul_back_D = 3;
 
 //variables
 //unsigned int ui_Motors_Speed = 1900;        // Default run speed
@@ -120,7 +122,8 @@ unsigned int  ui_Mode_Indicator_Index = 0;
 
 //display Bits 0,1,2,3, 4, 5, 6,  7,  8,  9,  10,  11,  12,  13,   14,   15
 int  iArray[16] = {
-  1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192,16384,65536};
+  1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 65536
+};
 int  iArrayIndex = 0;
 
 boolean bt_Heartbeat = true;
@@ -129,63 +132,67 @@ boolean bt_Do_Once = false;
 boolean bt_Cal_Initialized = false;
 
 //flags
-  bool flag_1 = true; 
-  
-  bool flag_2A = true; 
-  bool flag_2B = false; 
-  bool flag_2C = true; 
-  
-  bool flag_3A = true; 
-  bool flag_3B = false; 
-  bool flag_3C = true; 
+bool flag_1 = true;
 
-  bool flag_4A = true;
-  bool flag_4B = false; 
-  bool flag_4C = true; 
+bool flag_2A = true;
+bool flag_2B = false;
+bool flag_2C = true;
 
-  bool flag_5A = true;
-  bool flag_5B = false; 
-  bool flag_5C = true; 
+bool flag_3A = true;
+bool flag_3B = false;
+bool flag_3C = true;
 
-  bool flag_6A = true;
-  bool flag_6B = false; 
-  bool flag_6C = true; 
+bool flag_4A = true;
+bool flag_4B = false;
+bool flag_4C = true;
 
-  bool flag_7A = true;
-  bool flag_7B = false; 
-  bool flag_7C = true; 
+bool flag_5A = true;
+bool flag_5B = false;
+bool flag_5C = true;
 
-  bool flag_8A = true;
-  bool flag_8B = false; 
-  bool flag_8C = true; 
-  
-  bool A = true;
-  bool B = true;
-  bool C = true;
-  bool D = true;
+bool flag_6A = true;
+bool flag_6B = false;
+bool flag_6C = true;
 
-  bool flag_2B_reversed = false;
-  bool flag_2C_reversed = true;
-  bool flag_3B_reversed = false;
-  bool flag_3C_reversed = true;
-  bool flag_4B_reversed = false;
-  bool flag_4C_reversed = true;
-  bool flag_5B_reversed = false;
-  bool flag_5C_reversed = true;
-  bool flag_6B_reversed = false;
-  bool flag_6C_reversed = true;
-  bool flag_7B_reversed = false;
-  bool flag_7C_reversed = true;
-  bool flag_8B_reversed = false;
-  bool flag_8C_reversed = true;
+bool flag_7A = true;
+bool flag_7B = false;
+bool flag_7C = true;
 
-  bool Stack1 = true;
-  bool Stack2 = false;
-  bool Stack3 = false;
+bool flag_8A = true;
+bool flag_8B = false;
+bool flag_8C = true;
 
-  bool x = true;
+bool A = true;
+bool B = true;
+bool C = true;
+bool D = true;
 
-  bool stack_empty;
+bool flag_2B_reversed = false;
+bool flag_2C_reversed = true;
+bool flag_3B_reversed = false;
+bool flag_3C_reversed = true;
+bool flag_4B_reversed = false;
+bool flag_4C_reversed = true;
+bool flag_5B_reversed = false;
+bool flag_5C_reversed = true;
+bool flag_6B_reversed = false;
+bool flag_6C_reversed = true;
+bool flag_7B_reversed = false;
+bool flag_7C_reversed = true;
+bool flag_8B_reversed = false;
+bool flag_8C_reversed = true;
+
+bool Stack1 = true;
+bool Stack2 = false;
+
+bool x = true;
+bool IR_ON = false;
+bool case3_IR1 = false;
+bool case3_IR2 = true;
+
+bool comm_flag = true;
+
+bool stack_empty;
 
 unsigned int currentMove;
 unsigned long currentTime;
@@ -193,45 +200,47 @@ unsigned long currentMillis;
 unsigned long startVal;
 unsigned long startTime, endTime;
 unsigned long newStartTime, newEndTime;
+unsigned short Left_Motor_Offset = 15;
 
 
-void setup() 
+
+void setup()
 {
   Wire.begin();// Wire library required for I2CEncoder library
   Serial.begin(9600);
-
-  CharliePlexM::setBtn(ci_Charlieplex_LED1,ci_Charlieplex_LED2,ci_Charlieplex_LED3,ci_Charlieplex_LED4,ci_Mode_Button);
+mySerial.begin(2400);
+  CharliePlexM::setBtn(ci_Charlieplex_LED1, ci_Charlieplex_LED2, ci_Charlieplex_LED3, ci_Charlieplex_LED4, ci_Mode_Button);
 
   // set up drive motors
-    pinMode(ci_Right_Motor, OUTPUT);
-    servo_RightMotor.attach(ci_Right_Motor);
-    pinMode(ci_Left_Motor, OUTPUT);
-    servo_LeftMotor.attach(ci_Left_Motor);
+  pinMode(ci_Right_Motor, OUTPUT);
+  servo_RightMotor.attach(ci_Right_Motor);
+  pinMode(ci_Left_Motor, OUTPUT);
+  servo_LeftMotor.attach(ci_Left_Motor);
   // set up scooper motor
-    pinMode(ci_Scooper_Motor, OUTPUT);
-    servo_ScooperMotor.attach(ci_Scooper_Motor);
+  pinMode(ci_Scooper_Motor, OUTPUT);
+  servo_ScooperMotor.attach(ci_Scooper_Motor);
 
-  // set up encoders. Must be initialized in order that they are chained together, 
+  // set up encoders. Must be initialized in order that they are chained together,
   // starting with the encoder directly connected to the Arduino
-    encoder_LeftMotor.init(1.0/3.0*MOTOR_393_SPEED_ROTATIONS, MOTOR_393_TIME_DELTA);
-    encoder_LeftMotor.setReversed(false);  // adjust for positive count when moving forward
-    encoder_RightMotor.init(1.0/3.0*MOTOR_393_SPEED_ROTATIONS, MOTOR_393_TIME_DELTA);  
-    encoder_RightMotor.setReversed(true);  // adjust for positive count when moving forward
+  encoder_LeftMotor.init(1.0 / 3.0 * MOTOR_393_SPEED_ROTATIONS, MOTOR_393_TIME_DELTA);
+  encoder_LeftMotor.setReversed(false);  // adjust for positive count when moving forward
+  encoder_RightMotor.init(1.0 / 3.0 * MOTOR_393_SPEED_ROTATIONS, MOTOR_393_TIME_DELTA);
+  encoder_RightMotor.setReversed(true);  // adjust for positive count when moving forward
 
 }
 
 void loop()
 {
   //3 seconds timer flag
-  if((millis() - ul_3_Second_timer) > 3000)
+  if ((millis() - ul_3_Second_timer) > 3000)
   {
     bt_3_S_Time_Up = true;
   }
 
   // button-based mode selection
-  if(CharliePlexM::ui_Btn)
+  if (CharliePlexM::ui_Btn)
   {
-    if(bt_Do_Once == false)
+    if (bt_Do_Once == false)
     {
       bt_Do_Once = true;
       ui_Robot_State_Index++;
@@ -250,119 +259,138 @@ void loop()
   // check if drive motors should be powered
   bt_Motors_Enabled = digitalRead(ci_Motor_Enable_Switch);
 
-  // modes 
+  // modes
   // 0 = default after power up/reset
   // 1 = Press mode button once to enter. Run robot.
   // 2 = Press mode button twice to enter. Calibrate line tracker light level.
   // 3 = Press mode button three times to enter. Calibrate line tracker dark level.
   // 4 = Press mode button four times to enter. Calibrate motor speeds to drive straight.
-  
-  switch(ui_Robot_State_Index)
+
+  switch (ui_Robot_State_Index)
   {
     case 0: //Robot stopped
-    {
-      Ping();
-      servo_LeftMotor.writeMicroseconds(Motor_Stop); 
-      servo_RightMotor.writeMicroseconds(Motor_Stop);
-      Serial.print(" Ultrasonic 1: ");
-      Serial.println(ultrasonic1 );
-      Serial.print(" Ultrasonic 2: ");
-      Serial.println(ultrasonic2 );
-      Serial.print(" Ultrasonic 3: ");
-      Serial.println(ultrasonic3 );
-      break;
-    } 
-  
+      {
+        Ping();
+        servo_ScooperMotor.write(58);
+        servo_LeftMotor.writeMicroseconds(Motor_Stop);
+        servo_RightMotor.writeMicroseconds(Motor_Stop);
+        Serial.print(" Ultrasonic 1: ");
+//        Serial.print(ultrasonic1 );
+//        Serial.print('\t');
+//        Serial.print(ultrasonic2 );
+//        Serial.print('\t');
+//        Serial.print(ultrasonic3 );
+//        Serial.print('\t');
+//        Serial.println(ultrasonic4 );
+        break;
+      }
+
     case 1:  //Robot Run after 3 seconds
-    {
-      Serial.print("Stack size: ");
-      Serial.println(stackSize);
-      if ( stackSize >= 2 && Stack1 == true)
-      { 
-        Stack1 = false;
-        Stack2 = true;
-      }    
-      if ( stackSize == 0 && Stack1 == false && Stack2 == true)
       {
-        Stack2 == false;
-        Stack1 == true;
-      }
-      
-      if (x == true)
-      {
-         Ping();
-        if(bt_3_S_Time_Up)
+        Ping();
+        Infrared();
+        Serial.println(IR_ON);
+        servo_ScooperMotor.write(65);
+        //Serial.print("Stack size: ");
+        //Serial.println(stackSize);
+        if ( stackSize >= 3 && Stack1 == true)
         {
-          if ( (ultrasonic1 > ul_front_D) && A == true) // go foward if nothing is at front
-          {
-            Serial.println("going forward...");
-            if (flag_1 == true)
-            {
-              startTime = millis(); // start time
-              flag_1 = false;
-            }
-            servo_RightMotor.writeMicroseconds(1700); // go forward
-            servo_LeftMotor.writeMicroseconds(1700);
-          }
-          else if ( (ultrasonic1 > 1) && (ultrasonic1 < ul_front_D) && A == true )
-          {
-            servo_RightMotor.writeMicroseconds(1500); // stop
-            servo_LeftMotor.writeMicroseconds(1500);
-            endTime = millis(); // end time
-            currentTime = endTime - startTime;
-            A = false;
-          }
-          if (A == false && B == true)
-          {
-            newStartTime = millis();
-            if (C == true)
-            {
-              newEndTime = newStartTime + currentTime;
-              C = false;
-            }
-            if (newStartTime < newEndTime)
-            {
-              Serial.println("backing up...");
-              servo_RightMotor.writeMicroseconds(1300); // go backward
-              servo_LeftMotor.writeMicroseconds(1300);
-            }
-            else
-            {
-              Serial.println("done backing up...");
-              servo_RightMotor.writeMicroseconds(1500); //stop
-              servo_LeftMotor.writeMicroseconds(1500); 
-              B = false;
-            } 
+          Stack1 = false;
+          Stack2 = true;
         }
-        if (A == false && B == false)
+
+        if (x == true)
         {
-          Serial.println("going up...");
-          //servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Up);
-          delay(2000);
-          Serial.println("going down...");
-          //servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
-          B = true;
-          flag_1 = true; 
-          x = false;
-        } 
-       } 
-      }
-      if (x == false)
-       {
-        if (Stack1 == true)
-        {
-            Ping();
-            Infrared();
-            Serial.print(" Ultrasonic 1: ");
-            Serial.println(ultrasonic1);
-            Serial.print(" Ultrasonic 2: ");
-            Serial.println(ultrasonic2);
-            Serial.print(" Ultrasonic 3: ");
-            Serial.println(ultrasonic3);
-              
-            if ( ((ultrasonic1) > ul_front_D) && ((ultrasonic2) > ul_side_D) && ((ultrasonic3) > ul_side_D) && flag_1 == true) //Case 1: no objects nearby, drive straight 
+          if (bt_3_S_Time_Up)
+          {
+            if (ultrasonic1 > ul_front_D && A == true) // go foward if nothing is at front
             {
-              //servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
+              //Serial.println("going forward...");
+              //              if (flag_1 == true)
+              //              {
+              //                startTime = millis(); // start time
+              //                flag_1 = false;
+              //              }
+              servo_RightMotor.writeMicroseconds(1700); // go forward
+              servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
+            }
+            else if ((ultrasonic1 < ul_front_D || ultrasonic2 < ul_side_D || ultrasonic3 < ul_side_D) && A == true )
+            {
+              //Serial.println("time to go home");
+              A = false;
+            }
+            if (!A)
+            {
+              servo_RightMotor.writeMicroseconds(1500); // stop
+              servo_LeftMotor.writeMicroseconds(1500);
+              ReturnHome();
+              if (!comm_flag)
+              {
+                A = true;
+                x = false;
+                comm_flag = true;
+              }
+            }
+            //              endTime = millis(); // end time
+            //              currentTime = endTime - startTime;
+            //              A = false;
+            //}
+            //            if (A == false && B == true)
+            //            {
+            //              newStartTime = millis();
+            //              if (C == true)
+            //              {
+            //                newEndTime = newStartTime + currentTime;
+            //                C = false;
+            //              }
+            //              if (newStartTime < newEndTime)
+            //              {
+            //                Serial.println("backing up...");
+            //                servo_RightMotor.writeMicroseconds(1300); // go backward
+            //                servo_LeftMotor.writeMicroseconds(1300);
+            //              }
+            //              else
+            //              {
+            //                Serial.println("done backing up...");
+            //                servo_RightMotor.writeMicroseconds(1500); //stop
+            //                servo_LeftMotor.writeMicroseconds(1500);
+            //                B = false;
+            //              }
+            //            }
+            //            if (A == false && B == false)
+            //            {
+            //              servo_ScooperMotor.write(58);
+            //              for (int i = 60; i < 160; i += 3)
+            //              {
+            //                delay(50);
+            //                servo_ScooperMotor.write(i);
+            //              }
+            //              delay(1000);
+            //              servo_ScooperMotor.write(65);
+            //              Serial.println("going down...");
+            //              x = false;
+            //              B = true;
+            //              A = true;
+            //              flag_1 = true;
+            //}
+          }
+        }
+        if (x == false)
+        {
+          if (Stack1 == true)
+          {
+ //        Serial.print(ultrasonic1 );
+//        Serial.print('\t');
+//        Serial.print(ultrasonic2 );
+//        Serial.print('\t');
+//        Serial.print(ultrasonic3 );
+//        Serial.print('\t');
+//        Serial.println(ultrasonic4 );
+
+            if (ultrasonic1 > ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 > ul_side_D && flag_1 == true) //Case 1: no objects nearby, drive straight
+            {
+              Serial.print('\n');
+              Serial.println("case1");
               if (A == true)
               {
                 startTime = millis();
@@ -370,16 +398,14 @@ void loop()
                 Serial.println(startTime);
                 A = false;
               }
-              Serial.print('\n');
-              Serial.println("case1");
-    
+
+
               servo_RightMotor.writeMicroseconds(1700);
-              servo_LeftMotor.writeMicroseconds(1700); 
+              servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
             }
-            
-            else if ( ((ultrasonic1) <= ul_front_D && (ultrasonic1) > 1)  && ((ultrasonic2) <= ul_side_D) && ((ultrasonic2) > 1) && ((ultrasonic3) <= ul_side_D) && ((ultrasonic3) > 1) && flag_2A == true) //Case 2: object in front, AND object on left, AND object on right. back up turn 180deg
+
+            else if (ultrasonic1 <= ul_front_D  && ultrasonic2 <= ul_side_D && ultrasonic3 <= ul_side_D && flag_2A == true) //Case 2: object in front, AND object on left, AND object on right. back up turn 180deg
             {
-              servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
               servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
               servo_RightMotor.writeMicroseconds(Motor_Stop);
               Serial.println("case2A");
@@ -397,10 +423,10 @@ void loop()
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
-                Serial.println(stackSize); 
-           
+                Serial.println(stackSize);
+
                 A = true;
-              } 
+              }
               flag_2A = false;
               flag_3A = false;
               flag_4A = false;
@@ -408,59 +434,58 @@ void loop()
               flag_6A = false;
               flag_7A = false;
               flag_8A = false;
-            
-              flag_2B = true;    
+
+              flag_2B = true;
             }
-              if (flag_2B == true)
-              {
-                currentMillis = millis();
-                  if(flag_2C == true) // start timer
-                  {
-                    startVal = currentMillis;
-                    flag_2C = false;
-                  }
-                  if (flag_2C == false)
-                  {
-                      if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
-                      {
-                        servo_RightMotor.writeMicroseconds(1400);
-                        servo_LeftMotor.writeMicroseconds(1400);
-                        Serial.println("case2B");
-                      }
-                      else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 1200)//turn 180
-                      {
-                        servo_RightMotor.writeMicroseconds(1700);
-                        servo_LeftMotor.writeMicroseconds(1300);
-                        Serial.println("case2C");
-                      }
-                      else if((currentMillis-startVal) > 1200)
-                      {
-                        flag_1 = true; 
-                        flag_2A = true;
-                        flag_3A = true;
-                        flag_4A = true;
-                        flag_5A = true;
-                        flag_6A = true;
-                        flag_7A = true;
-                        flag_8A = true;
-    
-                        flag_2B = false;
-                        flag_2C = true;
-  
-                        Movement T;
-                        T.move = 2;
-                        T.time = 1200;
-                        stack.push(T);
-                        stackSize = stack.count();
-                        Serial.print("Stack size: ");
-                        Serial.println(stackSize); 
-                      }
-                  }
-               }
-    
-     else if ( ((ultrasonic1) <= ul_front_D && (ultrasonic1) > 1)  && (ultrasonic2 > ul_side_D) && (ultrasonic3 > ul_side_D) && flag_3A == true) //Case 3: object in front, no object on left, no object on right. back up, turn left (can be right too)
+            if (flag_2B == true)
             {
-              servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
+              currentMillis = millis();
+              if (flag_2C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_2C = false;
+              }
+              if (flag_2C == false)
+              {
+                if ((currentMillis - startVal) < 400) //back up slightly after .4 seconds
+                {
+                  servo_RightMotor.writeMicroseconds(1400);
+                  servo_LeftMotor.writeMicroseconds(1400);
+                  Serial.println("case2B");
+                }
+                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 1200) //turn 180
+                {
+                  servo_RightMotor.writeMicroseconds(1700);
+                  servo_LeftMotor.writeMicroseconds(1300);
+                  Serial.println("case2C");
+                }
+                else if ((currentMillis - startVal) > 1200)
+                {
+                  flag_1 = true;
+                  flag_2A = true;
+                  flag_3A = true;
+                  flag_4A = true;
+                  flag_5A = true;
+                  flag_6A = true;
+                  flag_7A = true;
+                  flag_8A = true;
+
+                  flag_2B = false;
+                  flag_2C = true;
+
+                  Movement T;
+                  T.move = 2;
+                  T.time = 1200;
+                  stack.push(T);
+                  stackSize = stack.count();
+                  Serial.print("Stack size: ");
+                  Serial.println(stackSize);
+                }
+              }
+            }
+
+            else if (ultrasonic1 <= ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 > ul_side_D && flag_3A == true) //Case 3: object in front, no object on left, no object on right. back up, turn left (can be right too)
+            {
               servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
               servo_RightMotor.writeMicroseconds(Motor_Stop);
               Serial.println("case3A");
@@ -476,10 +501,10 @@ void loop()
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
-                Serial.println(stackSize);  
+                Serial.println(stackSize);
                 A = true;
                 Serial.println("saved");
-              } 
+              }
               flag_2A = false;
               flag_3A = false;
               flag_4A = false;
@@ -487,66 +512,65 @@ void loop()
               flag_6A = false;
               flag_7A = false;
               flag_8A = false;
-    
-              
-              flag_3B = true; 
+
+
+              flag_3B = true;
             }
-              if (flag_3B == true)
-              {
-                currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.println(currentMillis);
-                  if(flag_3C == true) // start timer
-                  {
-                    startVal = currentMillis;
-                    flag_3C = false;
-                  }
-                  if (flag_3C == false)
-                  {
-                      if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
-                      {
-                        servo_RightMotor.writeMicroseconds(1400);
-                        servo_LeftMotor.writeMicroseconds(1400);
-                        Serial.println("case3B");
-                      }
-                      else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 1000)//turn left 225deg
-                      {
-                        servo_RightMotor.writeMicroseconds(1700);
-                        servo_LeftMotor.writeMicroseconds(1300); 
-                        Serial.println("case3C");
-                      }
-                      else if((currentMillis-startVal) > 1000)
-                      {
-                        flag_1 = true; 
-                        flag_2A = true;
-                        
-                        flag_3A = true;
-                        flag_4A = true;
-                        flag_5A = true;
-                        flag_6A = true;
-                        flag_7A = true;
-                        flag_8A = true;
-                        
-                        flag_3B = false;
-                        flag_3C = true;
-  
-                        Movement T;
-                        T.move = 3;
-                        T.time = 1000;
-                        stack.push(T);
-                        stackSize = stack.count();
-                        Serial.print("Stack size: ");
-                        Serial.println(stackSize); 
-                      }
-                  }
-               }
-               
-     else if ( (ultrasonic1 > ul_front_D) && (ultrasonic2 > ul_side_D) && ((ultrasonic3) <= ul_side_D) && ((ultrasonic3) > 1) && flag_4A == true) //Case 4: NO object in front, no object on left, AND object on right, turn left 90deg
+            if (flag_3B == true)
             {
-              servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+              if (flag_3C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_3C = false;
+              }
+              if (flag_3C == false)
+              {
+                if ((currentMillis - startVal) < 400) //back up slightly after .4 seconds
+                {
+                  servo_RightMotor.writeMicroseconds(1400);
+                  servo_LeftMotor.writeMicroseconds(1400);
+                  Serial.println("case3B");
+                }
+                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 1000) //turn left 225deg
+                {
+                  servo_RightMotor.writeMicroseconds(1700);
+                  servo_LeftMotor.writeMicroseconds(1300);
+                  Serial.println("case3C");
+                }
+                else if ((currentMillis - startVal) > 1000)
+                {
+                  flag_1 = true;
+                  flag_2A = true;
+
+                  flag_3A = true;
+                  flag_4A = true;
+                  flag_5A = true;
+                  flag_6A = true;
+                  flag_7A = true;
+                  flag_8A = true;
+
+                  flag_3B = false;
+                  flag_3C = true;
+
+                  Movement T;
+                  T.move = 3;
+                  T.time = 1000;
+                  stack.push(T);
+                  stackSize = stack.count();
+                  Serial.print("Stack size: ");
+                  Serial.println(stackSize);
+                }
+              }
+            }
+
+            else if (ultrasonic1 > ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 <= ul_side_D && flag_4A == true) //Case 4: NO object in front, no object on left, AND object on right, turn left 90deg
+            {
               servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
               servo_RightMotor.writeMicroseconds(Motor_Stop);
-              Serial.println("case4A"); 
+              Serial.println("case4A");
               flag_1 = false;
               if (A == false)
               {
@@ -561,10 +585,10 @@ void loop()
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
-                Serial.println(stackSize); 
+                Serial.println(stackSize);
                 A = true;
                 Serial.println("saved");
-              }  
+              }
               flag_2A = false;
               flag_3A = false;
               flag_4A = false;
@@ -572,55 +596,54 @@ void loop()
               flag_6A = false;
               flag_7A = false;
               flag_8A = false;
-              
-              flag_4B = true; 
+
+              flag_4B = true;
             }
-              if (flag_4B == true)
-              {
-                currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.println(currentMillis);
-                  if(flag_4C == true) // start timer
-                  {
-                    startVal = currentMillis;
-                    flag_4C = false;
-                  }
-                  if (flag_4C == false)
-                  {
-                      if((currentMillis-startVal) < 400) //turn left 90deg
-                      {
-                        servo_RightMotor.writeMicroseconds(1700);
-                        servo_LeftMotor.writeMicroseconds(1300);
-                        Serial.println("case4B");
-                      }
-                      else if((currentMillis-startVal) > 400)
-                      {
-                        flag_1 = true; 
-                        flag_2A = true;
-                        flag_3A = true;
-                        flag_4A = true;
-                        flag_5A = true;
-                        flag_6A = true;
-                        flag_7A = true;
-                        flag_8A = true;
-                        
-                        flag_4B = false;
-                        flag_4C = true;
-  
-                        Movement T;
-                        T.move = 4;
-                        T.time = 400;
-                        stack.push(T);
-                        stackSize = stack.count();
-                        Serial.print("Stack size: ");
-                        Serial.println(stackSize); 
-                      }
-                  }
-               }
-    
-     if ( (ultrasonic1 > ul_front_D) && ((ultrasonic2) <= ul_side_D) && ((ultrasonic2) > 1) && (ultrasonic3 > ul_side_D) && flag_5A == true) //Case 5: NO object in front, AND object on left, no object on right, turn right 90deg
+            if (flag_4B == true)
             {
-              servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+              if (flag_4C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_4C = false;
+              }
+              if (flag_4C == false)
+              {
+                if ((currentMillis - startVal) < 400) //turn left 90deg
+                {
+                  servo_RightMotor.writeMicroseconds(1700);
+                  servo_LeftMotor.writeMicroseconds(1300);
+                  Serial.println("case4B");
+                }
+                else if ((currentMillis - startVal) > 400)
+                {
+                  flag_1 = true;
+                  flag_2A = true;
+                  flag_3A = true;
+                  flag_4A = true;
+                  flag_5A = true;
+                  flag_6A = true;
+                  flag_7A = true;
+                  flag_8A = true;
+
+                  flag_4B = false;
+                  flag_4C = true;
+
+                  Movement T;
+                  T.move = 4;
+                  T.time = 400;
+                  stack.push(T);
+                  stackSize = stack.count();
+                  Serial.print("Stack size: ");
+                  Serial.println(stackSize);
+                }
+              }
+            }
+
+            if (ultrasonic1 > ul_front_D && ultrasonic2 <= ul_side_D && ultrasonic3 > ul_side_D && flag_5A == true) //Case 5: NO object in front, AND object on left, no object on right, turn right 90deg
+            {
               servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
               servo_RightMotor.writeMicroseconds(Motor_Stop);
               Serial.println("case5A");
@@ -638,10 +661,10 @@ void loop()
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
-                Serial.println(stackSize); 
+                Serial.println(stackSize);
                 A = true;
                 Serial.println("saved");
-              }  
+              }
               flag_2A = false;
               flag_3A = false;
               flag_4A = false;
@@ -649,56 +672,55 @@ void loop()
               flag_6A = false;
               flag_7A = false;
               flag_8A = false;
-              
-              flag_5B = true; 
+
+              flag_5B = true;
             }
-              if (flag_5B == true)
-              {
-                currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.print (currentMillis);
-                //Serial.print('\n')
-                  if(flag_5C == true) // start timer
-                  {
-                    startVal = currentMillis;
-                    flag_5C = false;
-                  }
-                  if (flag_5C == false)
-                  {
-                      if((currentMillis-startVal) < 400) //turn right 90deg
-                      {
-                        servo_RightMotor.writeMicroseconds(1300);
-                        servo_LeftMotor.writeMicroseconds(1700);
-                        Serial.println("case5B");
-                      }
-                      else if((currentMillis-startVal) > 400)
-                      {
-                        flag_1 = true; 
-                        flag_2A = true;
-                        flag_3A = true;
-                        flag_4A = true;
-                        flag_5A = true;
-                        flag_6A = true;
-                        flag_7A = true;
-                        flag_8A = true;
-                        
-                        flag_5B = false;
-                        flag_5C = true;
-  
-                        Movement T;
-                        T.move = 5;
-                        T.time = 400;
-                        stack.push(T);
-                        stackSize = stack.count();
-                        Serial.print("Stack size: ");
-                        Serial.println(stackSize); 
-                      }
-                  }
-               }
-    
-    else if ( ((ultrasonic1) <= ul_front_D && (ultrasonic1) > 1)  && ((ultrasonic2) <= ul_side_D) && ((ultrasonic2) > 1) && ((ultrasonic3) > ul_side_D) && flag_6A == true) //Case 6: object in front, AND object on left, no object on right. back up turn right 90deg
+            if (flag_5B == true)
             {
-              servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.print (currentMillis);
+              //Serial.print('\n')
+              if (flag_5C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_5C = false;
+              }
+              if (flag_5C == false)
+              {
+                if ((currentMillis - startVal) < 400) //turn right 90deg
+                {
+                  servo_RightMotor.writeMicroseconds(1300);
+                  servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
+                  Serial.println("case5B");
+                }
+                else if ((currentMillis - startVal) > 400)
+                {
+                  flag_1 = true;
+                  flag_2A = true;
+                  flag_3A = true;
+                  flag_4A = true;
+                  flag_5A = true;
+                  flag_6A = true;
+                  flag_7A = true;
+                  flag_8A = true;
+
+                  flag_5B = false;
+                  flag_5C = true;
+
+                  Movement T;
+                  T.move = 5;
+                  T.time = 400;
+                  stack.push(T);
+                  stackSize = stack.count();
+                  Serial.print("Stack size: ");
+                  Serial.println(stackSize);
+                }
+              }
+            }
+
+            else if (ultrasonic1 <= ul_front_D && ultrasonic2 <= ul_side_D && ultrasonic3 > ul_side_D && flag_6A == true) //Case 6: object in front, AND object on left, no object on right. back up turn right 90deg
+            {
               servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
               servo_RightMotor.writeMicroseconds(Motor_Stop);
               Serial.println("case6A");
@@ -716,10 +738,10 @@ void loop()
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
-                Serial.println(stackSize);  
+                Serial.println(stackSize);
                 A = true;
                 Serial.println("saved");
-              }  
+              }
               flag_2A = false;
               flag_3A = false;
               flag_4A = false;
@@ -727,61 +749,60 @@ void loop()
               flag_6A = false;
               flag_7A = false;
               flag_8A = false;
-              
-              flag_6B = true; 
+
+              flag_6B = true;
             }
-              if (flag_6B == true)
-              {
-                currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.println(currentMillis);
-                  if(flag_6C == true) // start timer
-                  {
-                    startVal = currentMillis;
-                    flag_6C = false;
-                  }
-                  if (flag_6C == false)
-                  {
-                      if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
-                      {
-                        servo_RightMotor.writeMicroseconds(1400);
-                        servo_LeftMotor.writeMicroseconds(1400);
-                        Serial.println("case6B");
-                      }
-                      else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 800)//turn right
-                      {
-                        servo_RightMotor.writeMicroseconds(1300);
-                        servo_LeftMotor.writeMicroseconds(1700);
-                        Serial.println("case6C");
-                      }
-                      else if((currentMillis-startVal) > 800)
-                      {
-                        flag_1 = true; 
-                        flag_2A = true;
-                        flag_3A = true;
-                        flag_4A = true;
-                        flag_5A = true;
-                        flag_6A = true;
-                        flag_7A = true;
-                        flag_8A = true;
-                        
-                        flag_6B = false;
-                        flag_6C = true;
-  
-                        Movement T;
-                        T.move = 6;
-                        T.time = 800;
-                        stack.push(T);
-                        stackSize = stack.count();
-                        Serial.print("Stack size: ");
-                        Serial.println(stackSize); 
-                      }
-                  }
-               }
-    
-         else if ( ((ultrasonic1) <= ul_front_D && (ultrasonic1) > 1) && ((ultrasonic2 ) > ul_side_D) && ((ultrasonic3 ) <= ul_side_D) && ((ultrasonic3 ) > 1) && flag_7A == true) //Case 7: object in front, no object on left, AND object on right. back up turn left 90deg
+            if (flag_6B == true)
             {
-              servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+              if (flag_6C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_6C = false;
+              }
+              if (flag_6C == false)
+              {
+                if ((currentMillis - startVal) < 400) //back up slightly after .4 seconds
+                {
+                  servo_RightMotor.writeMicroseconds(1400);
+                  servo_LeftMotor.writeMicroseconds(1400);
+                  Serial.println("case6B");
+                }
+                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) //turn right
+                {
+                  servo_RightMotor.writeMicroseconds(1300);
+                  servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
+                  Serial.println("case6C");
+                }
+                else if ((currentMillis - startVal) > 800)
+                {
+                  flag_1 = true;
+                  flag_2A = true;
+                  flag_3A = true;
+                  flag_4A = true;
+                  flag_5A = true;
+                  flag_6A = true;
+                  flag_7A = true;
+                  flag_8A = true;
+
+                  flag_6B = false;
+                  flag_6C = true;
+
+                  Movement T;
+                  T.move = 6;
+                  T.time = 800;
+                  stack.push(T);
+                  stackSize = stack.count();
+                  Serial.print("Stack size: ");
+                  Serial.println(stackSize);
+                }
+              }
+            }
+
+            else if (ultrasonic1 <= ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 <= ul_side_D && flag_7A == true) //Case 7: object in front, no object on left, AND object on right. back up turn left 90deg
+            {
               servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
               servo_RightMotor.writeMicroseconds(Motor_Stop);
               Serial.println("case7A");
@@ -799,10 +820,10 @@ void loop()
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
-                Serial.println(stackSize);  
+                Serial.println(stackSize);
                 A = true;
                 Serial.println("saved");
-              }  
+              }
               flag_2A = false;
               flag_3A = false;
               flag_4A = false;
@@ -810,61 +831,60 @@ void loop()
               flag_6A = false;
               flag_7A = false;
               flag_8A = false;
-              
-              flag_7B = true; 
+
+              flag_7B = true;
             }
-              if (flag_7B == true)
-              {
-                currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.println(currentMillis);
-                  if(flag_7C == true) // start timer
-                  {
-                    startVal = currentMillis;
-                    flag_7C = false;
-                  }
-                  if (flag_7C == false)
-                  {
-                      if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
-                      {
-                        servo_RightMotor.writeMicroseconds(1400);
-                        servo_LeftMotor.writeMicroseconds(1400);
-                        Serial.println("case7B");
-                      }
-                      else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 800)//turn left
-                      {
-                        servo_RightMotor.writeMicroseconds(1700);
-                        servo_LeftMotor.writeMicroseconds(1300);
-                        Serial.println("case7C");
-                      }
-                      else if((currentMillis-startVal) > 800)
-                      {
-                        flag_1 = true; 
-                        flag_2A = true;
-                        flag_3A = true;
-                        flag_4A = true;
-                        flag_5A = true;
-                        flag_6A = true;
-                        flag_7A = true;
-                        flag_8A = true;
-                        
-                        flag_7B = false;
-                        flag_7C = true;
-  
-                        Movement T;
-                        T.move = 7;
-                        T.time = 800;
-                        stack.push(T);
-                        stackSize = stack.count();
-                        Serial.print("Stack size: ");
-                        Serial.println(stackSize); 
-                      }
-                  }
-               }
-    
-      else if ( ((ultrasonic1 ) > ul_front_D) && ((ultrasonic2 ) <= ul_side_D && (ultrasonic2) > 1)  && (((ultrasonic3) <= ul_side_D) && (ultrasonic3) > 1) && flag_8A == true) //Case 8: no object in front, AND object on left, AND object on right. straight
+            if (flag_7B == true)
             {
-              servo_ScooperMotor.writeMicroseconds(ci_Scooper_Motor_Down);
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+              if (flag_7C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_7C = false;
+              }
+              if (flag_7C == false)
+              {
+                if ((currentMillis - startVal) < 400) //back up slightly after .4 seconds
+                {
+                  servo_RightMotor.writeMicroseconds(1400);
+                  servo_LeftMotor.writeMicroseconds(1400);
+                  Serial.println("case7B");
+                }
+                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) //turn left
+                {
+                  servo_RightMotor.writeMicroseconds(1700);
+                  servo_LeftMotor.writeMicroseconds(1300);
+                  Serial.println("case7C");
+                }
+                else if ((currentMillis - startVal) > 800)
+                {
+                  flag_1 = true;
+                  flag_2A = true;
+                  flag_3A = true;
+                  flag_4A = true;
+                  flag_5A = true;
+                  flag_6A = true;
+                  flag_7A = true;
+                  flag_8A = true;
+
+                  flag_7B = false;
+                  flag_7C = true;
+
+                  Movement T;
+                  T.move = 7;
+                  T.time = 800;
+                  stack.push(T);
+                  stackSize = stack.count();
+                  Serial.print("Stack size: ");
+                  Serial.println(stackSize);
+                }
+              }
+            }
+
+            else if (ultrasonic1 > ul_front_D && ultrasonic2 <= ul_side_D && ultrasonic3 <= ul_side_D && flag_8A == true) //Case 8: no object in front, AND object on left, AND object on right. straight
+            {
               servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
               servo_RightMotor.writeMicroseconds(Motor_Stop);
               Serial.println("case8A");
@@ -882,10 +902,10 @@ void loop()
                 stack.push(T);
                 stackSize = stack.count();
                 Serial.print("Stack size: ");
-                Serial.println(stackSize);  
+                Serial.println(stackSize);
                 A = true;
                 Serial.println("saved");
-              } 
+              }
               flag_2A = false;
               flag_3A = false;
               flag_4A = false;
@@ -893,85 +913,85 @@ void loop()
               flag_6A = false;
               flag_7A = false;
               flag_8A = false;
-            
-              flag_8B = true;    
-            }
-              if (flag_8B == true)
-              {
-                currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.println(currentMillis);
-                  if(flag_8C == true) // start timer
-                  {
-                    startVal = currentMillis;
-                    flag_8C = false;
-                  }
-                  if (flag_8C == false)
-                  {
-                      if((currentMillis-startVal) < 400) //back up slightly after .4 seconds
-                      {
-                        servo_RightMotor.writeMicroseconds(1400);
-                        servo_LeftMotor.writeMicroseconds(1400);
-                        Serial.println("case8B");
-                      }
-                      else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 1200)//turn 180
-                      {
-                        servo_RightMotor.writeMicroseconds(1700);
-                        servo_LeftMotor.writeMicroseconds(1300);
-                        Serial.println("case8C");
-                      }
-                      else if((currentMillis-startVal) > 1200)
-                      {
-                        flag_1 = true; 
-                        flag_2A = true;
-                        flag_3A = true;
-                        flag_4A = true;
-                        flag_5A = true;
-                        flag_6A = true;
-                        flag_7A = true;
-                        flag_8A = true;
-    
-                        flag_8B = false;
-                        flag_8C = true;
-  
-                        Movement T;
-                        T.move = 8;
-                        T.time = 1200;
-                        stack.push(T);
-                        stackSize = stack.count();
-                        Serial.print("Stack size: ");
-                        Serial.println(stackSize); 
-                      }
-                  }
-               }
-          }  
-        else if (Stack2 == true) //begin first return home 
-        {
-          // save case 1 if its running while timer ends
-          if (A == false)
-              {
-                endTime = millis();
-                Movement T;
-                T.move = 1;
-                T.time = endTime - startTime;
-                stack.push(T);
-                stackSize = stack.count();
-                Serial.print("Stack size: ");
-                Serial.println(stackSize); 
-                A = true;
-              } 
-          
-          Serial.println("transverse");
-          // flag to check if stack is empty: 0 = full, 1 = empty
 
-          if (D == true) // check if stack is empty
-          {
-            stack_empty = stack.isEmpty();
-            Serial.print("stack flag: ");
-            Serial.println(stack_empty);
-            D = false;  
+              flag_8B = true;
+            }
+            if (flag_8B == true)
+            {
+              currentMillis = millis();
+              //Serial.print ("Millis: ");
+              //Serial.println(currentMillis);
+              if (flag_8C == true) // start timer
+              {
+                startVal = currentMillis;
+                flag_8C = false;
+              }
+              if (flag_8C == false)
+              {
+                if ((currentMillis - startVal) < 400) //back up slightly after .4 seconds
+                {
+                  servo_RightMotor.writeMicroseconds(1400);
+                  servo_LeftMotor.writeMicroseconds(1400);
+                  Serial.println("case8B");
+                }
+                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 1200) //turn 180
+                {
+                  servo_RightMotor.writeMicroseconds(1700);
+                  servo_LeftMotor.writeMicroseconds(1300);
+                  Serial.println("case8C");
+                }
+                else if ((currentMillis - startVal) > 1200)
+                {
+                  flag_1 = true;
+                  flag_2A = true;
+                  flag_3A = true;
+                  flag_4A = true;
+                  flag_5A = true;
+                  flag_6A = true;
+                  flag_7A = true;
+                  flag_8A = true;
+
+                  flag_8B = false;
+                  flag_8C = true;
+
+                  Movement T;
+                  T.move = 8;
+                  T.time = 1200;
+                  stack.push(T);
+                  stackSize = stack.count();
+                  Serial.print("Stack size: ");
+                  Serial.println(stackSize);
+                }
+              }
+            }
           }
-  
+          else if (Stack2 == true) //begin first return home
+          {
+            // save case 1 if its running while timer ends
+            if (A == false)
+            {
+              endTime = millis();
+              Movement T;
+              T.move = 1;
+              T.time = endTime - startTime;
+              stack.push(T);
+              stackSize = stack.count();
+              Serial.print("Stack size: ");
+              Serial.println(stackSize);
+              A = true;
+            }
+
+            Serial.println("transverse");
+            // flag to check if stack is empty: 0 = full, 1 = empty
+
+            if (D == true) // check if stack is empty
+            {
+              stack_empty = stack.isEmpty();
+              Serial.print("stack flag: ");
+              Serial.println(stack_empty);
+              D = false;
+            }
+
             if (B == true && stack_empty == false)
             {
               Serial.println("saving Move");
@@ -979,7 +999,7 @@ void loop()
               lastMove = stack.pop();
               stackSize = stack.count();
               Serial.print("Stack Size: ");
-              Serial.println(stackSize); 
+              Serial.println(stackSize);
               currentMove = lastMove.move;
               currentTime = lastMove.time;
               Serial.print("currentMove: ");
@@ -987,7 +1007,7 @@ void loop()
               Serial.print("currentTime: ");
               Serial.println(currentTime);
               B = false;
-              C = true;  
+              C = true;
             }
             if (B == false && stack_empty == false)
             {
@@ -1006,339 +1026,395 @@ void loop()
                 }
                 if ( newStartTime < newEndTime )
                 {
-                   Serial.print("newStartTime2: ");
-                   Serial.println(newStartTime);
-                   Serial.print("newEndTime2: ");
-                   Serial.println(newEndTime);
-                   Serial.println("backing up...");
-                   servo_RightMotor.writeMicroseconds(1300);
-                   servo_LeftMotor.writeMicroseconds(1300);
-                 }
-                 else
-                 {
-                    Serial.println("Stopping1...");
-                   servo_RightMotor.writeMicroseconds(1500);
-                   servo_LeftMotor.writeMicroseconds(1500);
-                   B = true;
-                   D = true;
-                 }
-              } 
+                  Serial.print("newStartTime2: ");
+                  Serial.println(newStartTime);
+                  Serial.print("newEndTime2: ");
+                  Serial.println(newEndTime);
+                  Serial.println("backing up...");
+                  servo_RightMotor.writeMicroseconds(1300);
+                  servo_LeftMotor.writeMicroseconds(1300);
+                }
+                else
+                {
+                  Serial.println("Stopping1...");
+                  servo_RightMotor.writeMicroseconds(1500);
+                  servo_LeftMotor.writeMicroseconds(1500);
+                  B = true;
+                  D = true;
+                }
+              }
               if (currentMove == 2 && B == false)
-              { 
+              {
                 servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
                 servo_RightMotor.writeMicroseconds(Motor_Stop);
-                
-                flag_2B_reversed = true; 
-               if (flag_2B_reversed == true) 
-              {
-                currentMillis = millis();
-                  if(flag_2C_reversed == true) // start timer
+
+                flag_2B_reversed = true;
+                if (flag_2B_reversed == true)
+                {
+                  currentMillis = millis();
+                  if (flag_2C_reversed == true) // start timer
                   {
                     startVal = currentMillis;
                     flag_2C_reversed = false;
                   }
                   if (flag_2C_reversed == false)
                   {
-                      if((currentMillis-startVal) < 800) //turn 180
-                      {
-                        servo_RightMotor.writeMicroseconds(1300);
-                        servo_LeftMotor.writeMicroseconds(1700);
-                        Serial.println("case2C reversed");
-                        
-                      }
-                      else if((currentMillis-startVal)> 800 && (currentMillis-startVal) < 1200)//go forward slightly
-                      {
-                        servo_RightMotor.writeMicroseconds(1600);
-                        servo_LeftMotor.writeMicroseconds(1600);
-                        Serial.println("case2B reversed");
-                      }
-                      else if((currentMillis-startVal) > 1200)
-                      {
-                        flag_2B_reversed = false;
-                        flag_2C_reversed = true;
-                        B = true;
-                      }
-                     }
-                   }
-                  } 
-               if (currentMove == 3 && B == false)
-            {
-               servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
-                servo_RightMotor.writeMicroseconds(Motor_Stop);
-                
-                flag_3B_reversed = true; 
-            
-               if (flag_3B_reversed == true)
+                    if ((currentMillis - startVal) < 800) //turn 180
+                    {
+                      servo_RightMotor.writeMicroseconds(1300);
+                      servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
+                      Serial.println("case2C reversed");
+
+                    }
+                    else if ((currentMillis - startVal) > 800 && (currentMillis - startVal) < 1200) //go forward slightly
+                    {
+                      servo_RightMotor.writeMicroseconds(1600);
+                      servo_LeftMotor.writeMicroseconds(1600 + Left_Motor_Offset);
+                      Serial.println("case2B reversed");
+                    }
+                    else if ((currentMillis - startVal) > 1200)
+                    {
+                      flag_2B_reversed = false;
+                      flag_2C_reversed = true;
+                      B = true;
+                    }
+                  }
+                }
+              }
+              if (currentMove == 3 && B == false)
               {
-                currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.println(currentMillis);
-                  if(flag_3C_reversed == true) // start timer
+                servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+                servo_RightMotor.writeMicroseconds(Motor_Stop);
+
+                flag_3B_reversed = true;
+
+                if (flag_3B_reversed == true)
+                {
+                  currentMillis = millis();
+                  //Serial.print ("Millis: ");
+                  //Serial.println(currentMillis);
+                  if (flag_3C_reversed == true) // start timer
                   {
                     startVal = currentMillis;
                     flag_3C_reversed = false;
                   }
                   if (flag_3C_reversed == false)
                   {
-                      if((currentMillis-startVal) < 600) //turn right .6 seconds
-                      {
-                        servo_RightMotor.writeMicroseconds(1300);
-                        servo_LeftMotor.writeMicroseconds(1700);
-                        Serial.println("case3B");
-                      }
-                      else if((currentMillis-startVal)> 600 && (currentMillis-startVal) < 1000)//drive straight .4 seconds
-                      {
-                        servo_RightMotor.writeMicroseconds(1600);
-                        servo_LeftMotor.writeMicroseconds(1600); 
-                        Serial.println("case3C");
-                      }
-                      else if((currentMillis-startVal) > 1000)
-                      {
-                        flag_3B_reversed = false;
-                        flag_3C_reversed = true;
-                        B = true;
-                      }
+                    if ((currentMillis - startVal) < 600) //turn right .6 seconds
+                    {
+                      servo_RightMotor.writeMicroseconds(1300);
+                      servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
+                      Serial.println("case3B");
+                    }
+                    else if ((currentMillis - startVal) > 600 && (currentMillis - startVal) < 1000) //drive straight .4 seconds
+                    {
+                      servo_RightMotor.writeMicroseconds(1600);
+                      servo_LeftMotor.writeMicroseconds(1600 + Left_Motor_Offset);
+                      Serial.println("case3C");
+                    }
+                    else if ((currentMillis - startVal) > 1000)
+                    {
+                      flag_3B_reversed = false;
+                      flag_3C_reversed = true;
+                      B = true;
+                    }
                   }
-              }    
-            }
+                }
+              }
               if (currentMove == 4 && B == false)
               {
-             servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
-             servo_RightMotor.writeMicroseconds(Motor_Stop);
-              
-              flag_4B_reversed = true; 
-            
-              if (flag_4B_reversed == true)
-              {
-                currentMillis = millis();
+                servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+                servo_RightMotor.writeMicroseconds(Motor_Stop);
 
-                  if(flag_4C_reversed == true) // start timer
+                flag_4B_reversed = true;
+
+                if (flag_4B_reversed == true)
+                {
+                  currentMillis = millis();
+
+                  if (flag_4C_reversed == true) // start timer
                   {
                     startVal = currentMillis;
                     flag_4C_reversed = false;
                   }
                   if (flag_4C_reversed == false)
                   {
-                      if((currentMillis-startVal) < 400) //turn right 90deg
-                      {
-                        Serial.print("time: ");
-                        Serial.println(currentMillis-startVal);
-                        servo_RightMotor.writeMicroseconds(1300);
-                        servo_LeftMotor.writeMicroseconds(1700);
-                        Serial.println("case4B_reversed");
-                      }
-                      else if((currentMillis-startVal) > 400)
-                      {
-                        flag_4B_reversed = false;
-                        flag_4C_reversed = true;
-                        B = true;
-                      }
+                    if ((currentMillis - startVal) < 400) //turn right 90deg
+                    {
+                      Serial.print("time: ");
+                      Serial.println(currentMillis - startVal);
+                      servo_RightMotor.writeMicroseconds(1300);
+                      servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
+                      Serial.println("case4B_reversed");
+                    }
+                    else if ((currentMillis - startVal) > 400)
+                    {
+                      flag_4B_reversed = false;
+                      flag_4C_reversed = true;
+                      B = true;
+                    }
                   }
-               }
-             }
-             if (currentMove == 5 && B == false)
-             {
-              servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
-              servo_RightMotor.writeMicroseconds(Motor_Stop);
-              flag_5B_reversed = true;
-              if (flag_5B_reversed == true)
+                }
+              }
+              if (currentMove == 5 && B == false)
               {
-                currentMillis = millis()
-                ;
-                  if(flag_5C_reversed == true) // start timer
+                servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+                servo_RightMotor.writeMicroseconds(Motor_Stop);
+                flag_5B_reversed = true;
+                if (flag_5B_reversed == true)
+                {
+                  currentMillis = millis()
+                                  ;
+                  if (flag_5C_reversed == true) // start timer
                   {
                     startVal = currentMillis;
                     flag_5C_reversed = false;
                   }
                   if (flag_5C_reversed == false)
                   {
-                      if((currentMillis-startVal) < 400) //turn left 90deg
-                      {
-                        Serial.print("time: ");
-                        Serial.println(currentMillis-startVal);
-                        servo_RightMotor.writeMicroseconds(1700);
-                        servo_LeftMotor.writeMicroseconds(1300);
-                        Serial.println("case5B_reversed");
-                      }
-                      else if((currentMillis-startVal) > 400)
-                      {
-                        flag_5B_reversed = false;
-                        flag_5C_reversed = true;
-                        B = true;
-                      }
+                    if ((currentMillis - startVal) < 400) //turn left 90deg
+                    {
+                      Serial.print("time: ");
+                      Serial.println(currentMillis - startVal);
+                      servo_RightMotor.writeMicroseconds(1700);
+                      servo_LeftMotor.writeMicroseconds(1300);
+                      Serial.println("case5B_reversed");
+                    }
+                    else if ((currentMillis - startVal) > 400)
+                    {
+                      flag_5B_reversed = false;
+                      flag_5C_reversed = true;
+                      B = true;
+                    }
                   }
-               }
-             }
-             if (currentMove == 6 && B == false)
-             {
-             servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
-             servo_RightMotor.writeMicroseconds(Motor_Stop);
-              
-              flag_6B_reversed = true; 
-            
-              if (flag_6B_reversed == true)
+                }
+              }
+              if (currentMove == 6 && B == false)
               {
-                currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.println(currentMillis);
-                  if(flag_6C_reversed == true) // start timer
+                servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+                servo_RightMotor.writeMicroseconds(Motor_Stop);
+
+                flag_6B_reversed = true;
+
+                if (flag_6B_reversed == true)
+                {
+                  currentMillis = millis();
+                  //Serial.print ("Millis: ");
+                  //Serial.println(currentMillis);
+                  if (flag_6C_reversed == true) // start timer
                   {
                     startVal = currentMillis;
                     flag_6C_reversed = false;
                   }
                   if (flag_6C_reversed == false)
                   {
-                       if((currentMillis-startVal) < 400) //turn left 90deg
-                      {
-                        servo_RightMotor.writeMicroseconds(1700);
-                        servo_LeftMotor.writeMicroseconds(1300);
-                        Serial.println("case6B_reversed");
-                      }
-                      else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 800) //drive stright 0.4s
-                      {
-                        servo_RightMotor.writeMicroseconds(1600);
-                        servo_LeftMotor.writeMicroseconds(1600);
-                        Serial.println("case6C_reversed");
-                      }
-                      else if((currentMillis-startVal) > 800)
-                      {
-                        flag_6B_reversed = false;
-                        flag_6C_reversed = true;
-                        B = true;
-                      }
+                    if ((currentMillis - startVal) < 400) //turn left 90deg
+                    {
+                      servo_RightMotor.writeMicroseconds(1700);
+                      servo_LeftMotor.writeMicroseconds(1300);
+                      Serial.println("case6B_reversed");
+                    }
+                    else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) //drive stright 0.4s
+                    {
+                      servo_RightMotor.writeMicroseconds(1600);
+                      servo_LeftMotor.writeMicroseconds(1600 + Left_Motor_Offset);
+                      Serial.println("case6C_reversed");
+                    }
+                    else if ((currentMillis - startVal) > 800)
+                    {
+                      flag_6B_reversed = false;
+                      flag_6C_reversed = true;
+                      B = true;
+                    }
                   }
-               }
-             }
-               if (currentMove == 7 && B == false)
+                }
+              }
+              if (currentMove == 7 && B == false)
               {
-             servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
-             servo_RightMotor.writeMicroseconds(Motor_Stop);
-              
-              flag_7B_reversed = true; 
-            
-              if (flag_7B_reversed == true)
-              {
-                currentMillis = millis();
-                //Serial.print ("Millis: ");
-                //Serial.println(currentMillis);
-                  if(flag_6C_reversed == true) // start timer
+                servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
+                servo_RightMotor.writeMicroseconds(Motor_Stop);
+
+                flag_7B_reversed = true;
+
+                if (flag_7B_reversed == true)
+                {
+                  currentMillis = millis();
+                  //Serial.print ("Millis: ");
+                  //Serial.println(currentMillis);
+                  if (flag_6C_reversed == true) // start timer
                   {
                     startVal = currentMillis;
                     flag_7C_reversed = false;
                   }
                   if (flag_7C_reversed == false)
                   {
-                       if((currentMillis-startVal) < 400) //turn right 90deg
-                      {
-                        servo_RightMotor.writeMicroseconds(1300);
-                        servo_LeftMotor.writeMicroseconds(1700);
-                        Serial.println("case7B_reversed");
-                      }
-                      else if((currentMillis-startVal)> 400 && (currentMillis-startVal) < 800) //drive stright 0.4s
-                      {
-                        servo_RightMotor.writeMicroseconds(1600);
-                        servo_LeftMotor.writeMicroseconds(1600);
-                        Serial.println("case7C_reversed");
-                      }
-                      else if((currentMillis-startVal) > 800)
-                      {
-                        flag_7B_reversed = false;
-                        flag_7C_reversed = true;
-                        B = true;
-                      }
+                    if ((currentMillis - startVal) < 400) //turn right 90deg
+                    {
+                      servo_RightMotor.writeMicroseconds(1300);
+                      servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
+                      Serial.println("case7B_reversed");
+                    }
+                    else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) //drive stright 0.4s
+                    {
+                      servo_RightMotor.writeMicroseconds(1600);
+                      servo_LeftMotor.writeMicroseconds(1600 + Left_Motor_Offset);
+                      Serial.println("case7C_reversed");
+                    }
+                    else if ((currentMillis - startVal) > 800)
+                    {
+                      flag_7B_reversed = false;
+                      flag_7C_reversed = true;
+                      B = true;
+                    }
                   }
-               }
-             }
-            if (currentMove == 8 && B == false)
-              { 
+                }
+              }
+              if (currentMove == 8 && B == false)
+              {
                 servo_LeftMotor.writeMicroseconds(Motor_Stop); //stop
                 servo_RightMotor.writeMicroseconds(Motor_Stop);
-                
-                flag_8B_reversed = true; 
-               if (flag_8B_reversed == true) 
-              {
-                currentMillis = millis();
-                  if(flag_8C_reversed == true) // start timer
+
+                flag_8B_reversed = true;
+                if (flag_8B_reversed == true)
+                {
+                  currentMillis = millis();
+                  if (flag_8C_reversed == true) // start timer
                   {
                     startVal = currentMillis;
                     flag_8C_reversed = false;
                   }
                   if (flag_8C_reversed == false)
                   {
-                      if((currentMillis-startVal) < 800) //turn 180
-                      {
-                        servo_RightMotor.writeMicroseconds(1300);
-                        servo_LeftMotor.writeMicroseconds(1700);
-                        Serial.println("case8C reversed");
-                        
-                      }
-                      else if((currentMillis-startVal)> 800 && (currentMillis-startVal) < 1200)//go forward slightly
-                      {
-                        servo_RightMotor.writeMicroseconds(1600);
-                        servo_LeftMotor.writeMicroseconds(1600);
-                        Serial.println("case8B reversed");
-                      }
-                      else if((currentMillis-startVal) > 1200)
-                      {
-                        flag_8B_reversed = false;
-                        flag_8C_reversed = true;
-                        B = true;
-                      }
-                     }
-                   }
-                  } 
-           }
-           if (stack_empty == true)
-            {
-              Serial.println("Stopping2...");
-                servo_RightMotor.writeMicroseconds(1500);
-                servo_LeftMotor.writeMicroseconds(1500);
-                break;
+                    if ((currentMillis - startVal) < 800) //turn 180
+                    {
+                      servo_RightMotor.writeMicroseconds(1300);
+                      servo_LeftMotor.writeMicroseconds(1700 + Left_Motor_Offset);
+                      Serial.println("case8C reversed");
+
+                    }
+                    else if ((currentMillis - startVal) > 800 && (currentMillis - startVal) < 1200) //go forward slightly
+                    {
+                      servo_RightMotor.writeMicroseconds(1600);
+                      servo_LeftMotor.writeMicroseconds(1600 + Left_Motor_Offset);
+                      Serial.println("case8B reversed");
+                    }
+                    else if ((currentMillis - startVal) > 1200)
+                    {
+                      flag_8B_reversed = false;
+                      flag_8C_reversed = true;
+                      B = true;
+                    }
+                  }
+                }
+              }
             }
-        }
-        else if (Stack3 == true)
-        {
-          
+            if (stack_empty == true)
+            {
+              ReturnHome();
+              if (comm_flag = false)
+              {
+                Stack1 = true;
+                Stack2 = false;
+                comm_flag = true;
+              }
+            }
+            ui_Mode_Indicator_Index = 1;
+            break;
+          }
         }
       }
-        ui_Mode_Indicator_Index = 1;
-        break;
-      }  
   }
-} 
+}
 
 
 
-// measure distance to target using ultrasonic sensor  
+// measure distance to target using ultrasonic sensor
 void Ping()
 {
- soundsp = 331.4; // Calculate the Speed of Sound in M/S
- soundcm = soundsp / 10000;  // Convert to cm/ms
- 
- echo1 = sonar1.ping_median(iterations); // Measure duration for first sensor (front)
- echo2 = sonar2.ping_median(iterations); // Measure duration for second sensor (left)
- echo3 = sonar3.ping_median(iterations); // Measure duration for third sensor (right)
- echo4 = sonar4.ping_median(iterations); // Measure duration for fourth sensor (back)
- 
- 
- // Calculate the distances for three sensors
- ultrasonic1 = (echo1 / 2) * soundcm;
- ultrasonic2 = (echo2 / 2) * soundcm;
- ultrasonic3 = (echo3 / 2) * soundcm;
- ultrasonic4 = (echo4 / 2) * soundcm;
+  soundsp = 331.4; // Calculate the Speed of Sound in M/S
+  soundcm = soundsp / 10000;  // Convert to cm/ms
+
+  echo1 = sonar1.ping_median(iterations); // Measure duration for first sensor (front)
+  echo2 = sonar2.ping_median(iterations); // Measure duration for second sensor (left)
+  echo3 = sonar3.ping_median(iterations); // Measure duration for third sensor (right)
+  echo4 = sonar4.ping_median(iterations); // Measure duration for fourth sensor (back)
+
+  if (echo1) {
+    ultrasonic1 = (echo1 / 2) * soundcm;
+  }
+  if (echo2) {
+    ultrasonic2 = (echo2 / 2) * soundcm;
+  }
+  if (echo3) {
+    ultrasonic3 = (echo3 / 2) * soundcm;
+  }
+  if (echo4) {
+    ultrasonic4 = (echo4 / 2) * soundcm;
+  }
 }
+void ReturnHome ()
+{
+  //Serial.print("returning home... : ");
+  if (IR_ON == true && ultrasonic4 > ul_back_D) // Case 1: IR on, UL off. Drive backwards
+  {
+    servo_RightMotor.writeMicroseconds(1400);
+    servo_LeftMotor.writeMicroseconds(1400);
+    Serial.println("Backing up");
+  }
+  else if (IR_ON == false && ultrasonic4 > ul_back_D) //Case 2: IR OFF, UL off. Rotate 360
+  {
+    servo_RightMotor.writeMicroseconds(1700);
+    servo_LeftMotor.writeMicroseconds(1300);
+    Serial.println("Rotating 360");
+  }
+  else if (IR_ON == false && ultrasonic4 <= ul_back_D)// Case 3: IR OFF, UL on. Stop. Back up (go forward)
+  {
+    servo_RightMotor.writeMicroseconds(1600);
+    servo_LeftMotor.writeMicroseconds(1600 + Left_Motor_Offset);
+    Serial.println("Driving forward to correct");
+  }
+  else if (IR_ON == true && ultrasonic4 <= ul_back_D) // Case 4 / Last step : IR on, UL on. Stop, Dump.
+  {
+    servo_RightMotor.writeMicroseconds(1500);
+    servo_LeftMotor.writeMicroseconds(1500);
+    Serial.println("Dumping");
+    //dumping
+    servo_ScooperMotor.write(58);
+    for (int i = 60; i < 160; i += 3)
+    {
+      delay(50);
+      servo_ScooperMotor.write(i);
+    }
+    delay(1000);
+    servo_ScooperMotor.write(65);
+    comm_flag = false;
+  }
+}
+
 
 void Infrared()
 {
-    if (mySerial.available())
+  if (mySerial.available())
+  {
+    int x = mySerial.read();
+    Serial.println(x);
+    if ((x >= 48 && x <= 57) || x == 66 || (x >= 248 && x <= 255))
     {
-      if (mySerial.read() != NULL) //IR ON
-      {
-        Serial.println("light found");
-      }
-    else if (
+      Serial.println("light found");
+      IR_ON = true;
+    }
+    else
     {
       Serial.println("light NOT found");
+      IR_ON = false;
     }
   }
+  //    if (mySerial.available())
+  //    {
+  //      if (mySerial.read() != NULL) //IR ON
+  //      {
+  //        Serial.println("light found");
+  //      }
+  //  }
+
 }
