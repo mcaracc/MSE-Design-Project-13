@@ -1,0 +1,5 @@
+void Dump()
+{
+  servo_ScooperMotor.write(ci_Scooper_Arm_Up);
+  servo_ScooperMotor.write(ci_Scooper_Arm_Down);
+}
