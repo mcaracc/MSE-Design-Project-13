@@ -6,7 +6,10 @@ void ReturnHome()
   else if (IR_ON == false && ultrasonic4 > ul_back_D && IR1 == false) { //Case 2: IR OFF, UL off
     turnRight(200); //Rotate 360
   }
-  else if (IR_ON == true && ultrasonic4 <= ul_back_D && IR1 == false) { //Case 3(Last step): IR on, UL on
+  else if (IR_ON == false && ultrasonic4 <= ul_back_D && IR1 == false) { //Case 3: IR OFF, UL on
+    goForward(100); // Back up (go forward)
+  }
+  else if (IR_ON == true && ultrasonic4 <= ul_back_D && IR1 == false) { //Case 4(Last step): IR on, UL on
     Stop(); //Stop
     Dump(); //Dump
     comm_flag = false;
