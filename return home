@@ -7,7 +7,23 @@ void ReturnHome()
     turnRight(200); //Rotate 360
   }
   else if (IR_ON == false && ultrasonic4 <= ul_back_D && IR1 == false) { //Case 3: IR OFF, UL on
-    goForward(100); // Back up (go forward)
+    IR1 = true;
+  }
+  if (IR1 == true) {
+    currentMillis = millis();
+    IR2 = true;
+    if (IR2 == true) {
+      startVal = currentMillis;
+      IR2 = false;
+    }
+    if (IR2 == false) {
+      if ((currentMillis - startVal) < 800) {
+        goForward(100); // Back up (go forward)
+      }
+      else if ((currentMillis - startVal) > 800) {
+        IR1 = false;
+      }
+    }
   }
   else if (IR_ON == true && ultrasonic4 <= ul_back_D && IR1 == false) { //Case 4(Last step): IR on, UL on
     Stop(); //Stop
