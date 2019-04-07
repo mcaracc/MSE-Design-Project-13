@@ -25,9 +25,6 @@ class Movement
 StackArray <Movement> stack;
 unsigned int stackSize;
 
-//Infared Setup
-SoftwareSerial mySerial(2, 13); // RX, TX
-
 boolean bt_Motors_Enabled = true;
 
 //port pin constants
@@ -52,9 +49,9 @@ const int ci_I2C_SCL = A5;         // I2C clock = yellow
 #define Ultrasonic_Data3  A2
 #define Ultrasonic_Ping4  A3 //backward facing sensor
 #define Ultrasonic_Data4  A3
-#define MAX_DISTANCE 400
 
 //Ultrasonic Setup
+#define MAX_DISTANCE 400
 NewPing sonar1(Ultrasonic_Ping1, Ultrasonic_Data1, MAX_DISTANCE);
 NewPing sonar2(Ultrasonic_Ping2, Ultrasonic_Data2, MAX_DISTANCE);
 NewPing sonar3(Ultrasonic_Ping3, Ultrasonic_Data3, MAX_DISTANCE);
@@ -82,8 +79,6 @@ const int ul_back_D = 3;
 const int Left_Motor_Offset = 15;
 
 //variables
-unsigned int ui_Left_Motor_Speed;
-unsigned int ui_Right_Motor_Speed;
 unsigned int ul_3_Second_timer = 0;
 unsigned int ui_Cal_Cycle;
 unsigned int currentMove;
@@ -92,6 +87,7 @@ unsigned long currentMillis;
 unsigned long startVal;
 unsigned long startTime, endTime;
 unsigned long newStartTime, newEndTime;
+unsigned long mtime;
 
 //******* DONT INCLUDE********/////////
 unsigned int  ui_Robot_State_Index = 0;
@@ -158,13 +154,38 @@ bool flag_7C_reversed = true;
 bool flag_8B_reversed = false;
 bool flag_8C_reversed = true;
 bool Phase1 = true;
-bool Phase2 = false;
-bool Phase3 = true;
+bool Phase2 = true;
+bool Phase3 = false;
 bool IR_ON = false;
 bool IR1 = false;
 bool IR2 = true;
 bool comm_flag = true;
 bool stack_empty;
+
+//Infared Setup
+SoftwareSerial mySerial(2, 13); // RX, TX
+void Infrared()
+{
+  if (mySerial.available())
+  {
+    int x = mySerial.read();
+    if ((x >= 49 && x <= 51) || x == 66)
+    {
+      IR_ON = true;
+    }
+    else
+    {
+      IR_ON = false;
+    }
+    while (mySerial.available()) {
+      int trash = mySerial.read();
+    }
+  }
+  else
+  {
+    IR_ON = false;
+  }
+}
 
 void setup()
 {
@@ -234,45 +255,35 @@ void loop()
           Phase2 = false;
           Phase3 = true;
         }
-        if (Phase1 == true)
-        {
-          if (bt_3_S_Time_Up)
-          {
-            if (ultrasonic1 > ul_front_D && A == true) // go foward if nothing is at front
-            {
-              if (flag_1 == true)
-              {
+        if (Phase1 == true) {
+          if (bt_3_S_Time_Up) {
+            if (ultrasonic1 > ul_front_D && A == true) { // go foward if nothing is at front
+              if (flag_1 == true) {
                 startTime = millis(); // start time
                 flag_1 = false;
               }
               goForward(200);
             }
-            else if ((ultrasonic1 < ul_front_D || ultrasonic2 < ul_side_D || ultrasonic3 < ul_side_D) && A == true )
-            {
+            else if ((ultrasonic1 < ul_front_D || ultrasonic2 < ul_side_D || ultrasonic3 < ul_side_D) && A == true ) {
               endTime = millis(); // end time
               currentTime = endTime - startTime;
               A = false;
             }
-            if (A == false && B == true)
-            {
+            if (A == false && B == true) {
               newStartTime = millis();
-              if (C == true)
-              {
+              if (C == true) {
                 newEndTime = newStartTime + currentTime;
                 C = false;
               }
-              if (newStartTime < newEndTime)
-              {
+              if (newStartTime < newEndTime) {
                 goBackward(200);
               }
-              else
-              {
+              else {
                 Stop();
                 B = false;
               }
             }
-            if (A == false && B == false)
-            {
+            if (A == false && B == false) {
               Dump();
               Phase1 = false;
               B = true;
@@ -281,31 +292,22 @@ void loop()
             }
           }
         }
-        if (Phase1 == false)
-        {
-          if (Phase2 == true)
-          {
-            if (ultrasonic1 > ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 > ul_side_D && flag_1 == true) //Case 1: no objects nearby, drive straight
-            {
-              if (A == true)
-              {
+        if (Phase1 == false) {
+          if (Phase2 == true) {
+            if (ultrasonic1 > ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 > ul_side_D && flag_1 == true) { //Case 1: no objects nearby
+              if (A == true) {
                 startTime = millis();
                 A = false;
               }
-              goForward(200);
+              goForward(200); // drive straight
             }
-            else if (ultrasonic1 <= ul_front_D  && ultrasonic2 <= ul_side_D && ultrasonic3 <= ul_side_D && flag_2A == true) //Case 2: object in front, AND object on left, AND object on right. back up turn 180deg
-            {
+            else if (ultrasonic1 <= ul_front_D  && ultrasonic2 <= ul_side_D && ultrasonic3 <= ul_side_D && flag_2A == true) { //Case 2: object in front AND object on left and right
               Stop();
               flag_1 = false;
-              if (A == false)
-              {
+              if (A == false) {
                 endTime = millis();
-                Movement T;
-                T.move = 1;
-                T.time = endTime - startTime;
-                stack.push(T);
-                stackSize = stack.count();
+                mtime = endTime - startTime;
+                saveMove(1, mtime);
                 A = true;
               }
               flag_2A = false;
@@ -317,26 +319,20 @@ void loop()
               flag_8A = false;
               flag_2B = true;
             }
-            if (flag_2B == true)
-            {
+            if (flag_2B == true) {
               currentMillis = millis();
-              if (flag_2C == true) // start timer
-              {
+              if (flag_2C == true) { // start timer
                 startVal = currentMillis;
                 flag_2C = false;
               }
-              if (flag_2C == false)
-              {
-                if ((currentMillis - startVal) < 400) //back up slightly after .4 seconds
-                {
+              if (flag_2C == false) {
+                if ((currentMillis - startVal) < 400) { //back up slightly after .4 seconds
                   goBackward(100);
                 }
-                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 1200) //turn 180
-                {
+                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 1200) { //turn 180
                   turnLeft(200);
                 }
-                else if ((currentMillis - startVal) > 1200)
-                {
+                else if ((currentMillis - startVal) > 1200) {
                   flag_1 = true;
                   flag_2A = true;
                   flag_3A = true;
@@ -347,26 +343,17 @@ void loop()
                   flag_8A = true;
                   flag_2B = false;
                   flag_2C = true;
-                  Movement T;
-                  T.move = 2;
-                  T.time = 1200;
-                  stack.push(T);
-                  stackSize = stack.count();
+                  saveMove(2, 1200);
                 }
               }
             }
-            else if (ultrasonic1 <= ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 > ul_side_D && flag_3A == true) //Case 3: object in front, no object on left, no object on right. back up, turn left (can be right too)
-            {
+            else if (ultrasonic1 <= ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 > ul_side_D && flag_3A == true) { //Case 3: object in front, no object on left, no object on right
               Stop();
               flag_1 = false;
-              if (A == false)
-              {
+              if (A == false) {
                 endTime = millis();
-                Movement T;
-                T.move = 1;
-                T.time = endTime - startTime;
-                stack.push(T);
-                stackSize = stack.count();
+                mtime = endTime - startTime;
+                saveMove(1, mtime);
                 A = true;
               }
               flag_2A = false;
@@ -378,26 +365,20 @@ void loop()
               flag_8A = false;
               flag_3B = true;
             }
-            if (flag_3B == true)
-            {
+            if (flag_3B == true) {
               currentMillis = millis();
-              if (flag_3C == true) // start timer
-              {
+              if (flag_3C == true) { // start timer
                 startVal = currentMillis;
                 flag_3C = false;
               }
-              if (flag_3C == false)
-              {
-                if ((currentMillis - startVal) < 400) //back up slightly after .4 seconds
-                {
+              if (flag_3C == false) {
+                if ((currentMillis - startVal) < 400) { //back up slightly after .4 seconds
                   goBackward(100);
                 }
-                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 1000) //turn left 225deg
-                {
+                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 1400) { //turn left 225deg
                   turnLeft(200);
                 }
-                else if ((currentMillis - startVal) > 1000)
-                {
+                else if ((currentMillis - startVal) > 1400) {
                   flag_1 = true;
                   flag_2A = true;
                   flag_3A = true;
@@ -408,26 +389,17 @@ void loop()
                   flag_8A = true;
                   flag_3B = false;
                   flag_3C = true;
-                  Movement T;
-                  T.move = 3;
-                  T.time = 1000;
-                  stack.push(T);
-                  stackSize = stack.count();
+                  saveMove(3, 1400);
                 }
               }
             }
-            else if (ultrasonic1 > ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 <= ul_side_D && flag_4A == true) //Case 4: NO object in front, no object on left, AND object on right, turn left 90deg
-            {
+            else if (ultrasonic1 > ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 <= ul_side_D && flag_4A == true) { //Case 4: NO object in front, no object on left, AND object on right
               Stop();
               flag_1 = false;
-              if (A == false)
-              {
+              if (A == false) {
                 endTime = millis();
-                Movement T;
-                T.move = 1;
-                T.time = endTime - startTime;
-                stack.push(T);
-                stackSize = stack.count();
+                mtime = endTime - startTime;
+                saveMove(1, mtime);
                 A = true;
               }
               flag_2A = false;
@@ -439,22 +411,17 @@ void loop()
               flag_8A = false;
               flag_4B = true;
             }
-            if (flag_4B == true)
-            {
+            if (flag_4B == true) {
               currentMillis = millis();
-              if (flag_4C == true) // start timer
-              {
+              if (flag_4C == true) { // start timer
                 startVal = currentMillis;
                 flag_4C = false;
               }
-              if (flag_4C == false)
-              {
-                if ((currentMillis - startVal) < 400) //turn left 90deg
-                {
+              if (flag_4C == false) {
+                if ((currentMillis - startVal) < 400) { //turn left 90deg
                   turnLeft(200);
                 }
-                else if ((currentMillis - startVal) > 400)
-                {
+                else if ((currentMillis - startVal) > 400) {
                   flag_1 = true;
                   flag_2A = true;
                   flag_3A = true;
@@ -465,26 +432,18 @@ void loop()
                   flag_8A = true;
                   flag_4B = false;
                   flag_4C = true;
-                  Movement T;
-                  T.move = 4;
-                  T.time = 400;
-                  stack.push(T);
-                  stackSize = stack.count();
+                  saveMove(4, 400);
                 }
               }
             }
-            if (ultrasonic1 > ul_front_D && ultrasonic2 <= ul_side_D && ultrasonic3 > ul_side_D && flag_5A == true) //Case 5: NO object in front, AND object on left, no object on right, turn right 90deg
-            {
+
+            else if (ultrasonic1 > ul_front_D && ultrasonic2 <= ul_side_D && ultrasonic3 > ul_side_D && flag_5A == true) { //Case 5: NO object in front, AND object on left, no object on right
               Stop();
               flag_1 = false;
-              if (A == false)
-              {
+              if (A == false) {
                 endTime = millis();
-                Movement T;
-                T.move = 1;
-                T.time = endTime - startTime;
-                stack.push(T);
-                stackSize = stack.count();
+                mtime = endTime - startTime;
+                saveMove(1, mtime);
                 A = true;
               }
               flag_2A = false;
@@ -496,22 +455,18 @@ void loop()
               flag_8A = false;
               flag_5B = true;
             }
-            if (flag_5B == true)
-            {
+            if (flag_5B == true) {
               currentMillis = millis();
-              if (flag_5C == true) // start timer
-              {
+              if (flag_5C == true) { // start timer
                 startVal = currentMillis;
                 flag_5C = false;
               }
               if (flag_5C == false)
               {
-                if ((currentMillis - startVal) < 400) //turn right 90deg
-                {
+                if ((currentMillis - startVal) < 400) { //turn right 90deg
                   turnRight(200);
                 }
-                else if ((currentMillis - startVal) > 400)
-                {
+                else if ((currentMillis - startVal) > 400) {
                   flag_1 = true;
                   flag_2A = true;
                   flag_3A = true;
@@ -522,26 +477,18 @@ void loop()
                   flag_8A = true;
                   flag_5B = false;
                   flag_5C = true;
-                  Movement T;
-                  T.move = 5;
-                  T.time = 400;
-                  stack.push(T);
-                  stackSize = stack.count();
+                  saveMove(5, 400);
                 }
               }
             }
-            else if (ultrasonic1 <= ul_front_D && ultrasonic2 <= ul_side_D && ultrasonic3 > ul_side_D && flag_6A == true) //Case 6: object in front, AND object on left, no object on right. back up turn right 90deg
-            {
+
+            else if (ultrasonic1 <= ul_front_D && ultrasonic2 <= ul_side_D && ultrasonic3 > ul_side_D && flag_6A == true) { //Case 6: object in front, AND object on left, no object on right
               Stop();
               flag_1 = false;
-              if (A == false)
-              {
+              if (A == false) {
                 endTime = millis();
-                Movement T;
-                T.move = 1;
-                T.time = endTime - startTime;
-                stack.push(T);
-                stackSize = stack.count();
+                mtime = endTime - startTime;
+                saveMove(1, mtime);
                 A = true;
               }
               flag_2A = false;
@@ -553,26 +500,20 @@ void loop()
               flag_8A = false;
               flag_6B = true;
             }
-            if (flag_6B == true)
-            {
+            if (flag_6B == true) {
               currentMillis = millis();
-              if (flag_6C == true) // start timer
-              {
+              if (flag_6C == true) { // start timer
                 startVal = currentMillis;
                 flag_6C = false;
               }
-              if (flag_6C == false)
-              {
-                if ((currentMillis - startVal) < 400) //back up slightly after .4 seconds
-                {
+              if (flag_6C == false) {
+                if ((currentMillis - startVal) < 400) { //back up slightly after .4 seconds
                   goBackward(100);
                 }
-                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) //turn right
-                {
+                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) { //turn right 90 deg
                   turnRight(200);
                 }
-                else if ((currentMillis - startVal) > 800)
-                {
+                else if ((currentMillis - startVal) > 800) {
                   flag_1 = true;
                   flag_2A = true;
                   flag_3A = true;
@@ -583,27 +524,18 @@ void loop()
                   flag_8A = true;
                   flag_6B = false;
                   flag_6C = true;
-                  Movement T;
-                  T.move = 6;
-                  T.time = 800;
-                  stack.push(T);
-                  stackSize = stack.count();
+                  saveMove(6, 800);
                 }
               }
             }
 
-            else if (ultrasonic1 <= ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 <= ul_side_D && flag_7A == true) //Case 7: object in front, no object on left, AND object on right. back up turn left 90deg
-            {
+            else if (ultrasonic1 <= ul_front_D && ultrasonic2 > ul_side_D && ultrasonic3 <= ul_side_D && flag_7A == true) { //Case 7: object in front, no object on left, AND object on right
               Stop();
               flag_1 = false;
-              if (A == false)
-              {
+              if (A == false) {
                 endTime = millis();
-                Movement T;
-                T.move = 1;
-                T.time = endTime - startTime;
-                stack.push(T);
-                stackSize = stack.count();
+                mtime = endTime - startTime;
+                saveMove(1, mtime);
                 A = true;
               }
               flag_2A = false;
@@ -615,26 +547,20 @@ void loop()
               flag_8A = false;
               flag_7B = true;
             }
-            if (flag_7B == true)
-            {
+            if (flag_7B == true) {
               currentMillis = millis();
-              if (flag_7C == true) // start timer
-              {
+              if (flag_7C == true) {
                 startVal = currentMillis;
                 flag_7C = false;
               }
-              if (flag_7C == false)
-              {
-                if ((currentMillis - startVal) < 400) //back up slightly after .4 seconds
-                {
-                  goBackward(100);
+              if (flag_7C == false) {
+                if ((currentMillis - startVal) < 400) {
+                  goBackward(100); //back up slightly after .4 seconds
                 }
-                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) //turn left
-                {
-                  turnLeft(200);
+                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) {
+                  turnLeft(200); //turn left 90 deg
                 }
-                else if ((currentMillis - startVal) > 800)
-                {
+                else if ((currentMillis - startVal) > 800) {
                   flag_1 = true;
                   flag_2A = true;
                   flag_3A = true;
@@ -645,27 +571,18 @@ void loop()
                   flag_8A = true;
                   flag_7B = false;
                   flag_7C = true;
-                  Movement T;
-                  T.move = 7;
-                  T.time = 800;
-                  stack.push(T);
-                  stackSize = stack.count();
+                  saveMove(7, 800);
                 }
               }
             }
 
-            else if (ultrasonic1 > ul_front_D && ultrasonic2 <= ul_side_D && ultrasonic3 <= ul_side_D && flag_8A == true) //Case 8: no object in front, AND object on left, AND object on right. straight
-            {
+            else if (ultrasonic1 > ul_front_D && ultrasonic2 <= ul_side_D && ultrasonic3 <= ul_side_D && flag_8A == true) { //Case 8: no object in front, AND object on left, AND object on right
               Stop();
               flag_1 = false;
-              if (A == false)
-              {
+              if (A == false) {
                 endTime = millis();
-                Movement T;
-                T.move = 1;
-                T.time = endTime - startTime;
-                stack.push(T);
-                stackSize = stack.count();
+                mtime = endTime - startTime;
+                saveMove(1, mtime);
                 A = true;
               }
               flag_2A = false;
@@ -677,26 +594,21 @@ void loop()
               flag_8A = false;
               flag_8B = true;
             }
-            if (flag_8B == true)
-            {
+            if (flag_8B == true) {
               currentMillis = millis();
-              if (flag_8C == true) // start timer
-              {
+              if (flag_8C == true) {
                 startVal = currentMillis;
                 flag_8C = false;
               }
               if (flag_8C == false)
               {
-                if ((currentMillis - startVal) < 400) //back up slightly after .4 seconds
-                {
-                  goBackward(100);
+                if ((currentMillis - startVal) < 400) {
+                  goBackward(100); //back up slightly after .4 seconds
                 }
-                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 1200) //turn 180
-                {
-                  turnLeft(200);
+                else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 1200) {
+                  turnLeft(200); //turn 180
                 }
-                else if ((currentMillis - startVal) > 1200)
-                {
+                else if ((currentMillis - startVal) > 1200) {
                   flag_1 = true;
                   flag_2A = true;
                   flag_3A = true;
@@ -707,37 +619,23 @@ void loop()
                   flag_8A = true;
                   flag_8B = false;
                   flag_8C = true;
-                  Movement T;
-                  T.move = 8;
-                  T.time = 1200;
-                  stack.push(T);
-                  stackSize = stack.count();
+                  saveMove(8, 1200);
                 }
               }
             }
           }
-          else if (Phase3 == true) //begin first return home
-          {
-            // save case 1 if its running while timer ends
-            if (A == false)
-            {
+          else if (Phase3 == true) { //begin transversing
+            if (A == false) { // save case 1 if its running while timer ends
               endTime = millis();
-              Movement T;
-              T.move = 1;
-              T.time = endTime - startTime;
-              stack.push(T);
-              stackSize = stack.count();
+              mtime = endTime - startTime;
+              saveMove(1, mtime);
               A = true;
             }
-
-            // flag to check if stack is empty: 0 = full, 1 = empty
-            if (D == true) // check if stack is empty
-            {
-              stack_empty = stack.isEmpty();
+            if (D == true) { // check if stack is empty
+              stack_empty = stack.isEmpty(); // flag to check if stack is empty: 0 = full, 1 = empty
               D = false;
             }
-            if (B == true && stack_empty == false)
-            {
+            if (B == true && stack_empty == false) {
               Movement lastMove;
               lastMove = stack.pop();
               stackSize = stack.count();
@@ -746,52 +644,39 @@ void loop()
               B = false;
               C = true;
             }
-            if (B == false && stack_empty == false)
-            {
-              if (currentMove == 1 && B == false)
-              {
+            if (B == false && stack_empty == false) {
+              if (currentMove == 1 && B == false) {
                 newStartTime = millis();
-                if (C == true)
-                {
+                if (C == true) {
                   newEndTime = newStartTime + currentTime;
                   C = false;
                 }
-                if ( newStartTime < newEndTime )
-                {
+                if ( newStartTime < newEndTime ) {
                   goBackward(200);
                 }
-                else
-                {
+                else {
                   Stop();
                   B = true;
                   D = true;
                 }
               }
-              if (currentMove == 2 && B == false)
-              {
+              else if (currentMove == 2 && B == false) {
                 Stop();
-
                 flag_2B_reversed = true;
-                if (flag_2B_reversed == true)
-                {
+                if (flag_2B_reversed == true) {
                   currentMillis = millis();
-                  if (flag_2C_reversed == true) // start timer
-                  {
-                    startVal = currentMillis;
+                  if (flag_2C_reversed == true) {
+                    startVal = currentMillis; // start timer
                     flag_2C_reversed = false;
                   }
-                  if (flag_2C_reversed == false)
-                  {
-                    if ((currentMillis - startVal) < 800) //turn 180
-                    {
-                      turnLeft(200);
+                  if (flag_2C_reversed == false) {
+                    if ((currentMillis - startVal) < 800) {
+                      turnLeft(200); //turn 180
                     }
-                    else if ((currentMillis - startVal) > 800 && (currentMillis - startVal) < 1200) //go forward slightly
-                    {
-                      goForward(100);
+                    else if ((currentMillis - startVal) > 800 && (currentMillis - startVal) < 1200) {
+                      goForward(100); //go forward slightly
                     }
-                    else if ((currentMillis - startVal) > 1200)
-                    {
+                    else if ((currentMillis - startVal) > 1200) {
                       flag_2B_reversed = false;
                       flag_2C_reversed = true;
                       B = true;
@@ -799,31 +684,23 @@ void loop()
                   }
                 }
               }
-              if (currentMove == 3 && B == false)
-              {
+              else if (currentMove == 3 && B == false) {
                 Stop();
                 flag_3B_reversed = true;
-
-                if (flag_3B_reversed == true)
-                {
+                if (flag_3B_reversed == true) {
                   currentMillis = millis();
-                  if (flag_3C_reversed == true) // start timer
-                  {
+                  if (flag_3C_reversed == true) {
                     startVal = currentMillis;
                     flag_3C_reversed = false;
                   }
-                  if (flag_3C_reversed == false)
-                  {
-                    if ((currentMillis - startVal) < 700) //turn right .6 seconds
-                    {
-                      turnRight(200);
+                  if (flag_3C_reversed == false) {
+                    if ((currentMillis - startVal) < 700) {
+                      turnRight(200); //turn right .7 seconds
                     }
-                    else if ((currentMillis - startVal) > 700 && (currentMillis - startVal) < 1100) //drive straight .4 seconds
-                    {
-                      goForward(100);
+                    else if ((currentMillis - startVal) > 700 && (currentMillis - startVal) < 1400) {
+                      goForward(100); //drive straight .4 seconds
                     }
-                    else if ((currentMillis - startVal) > 1100)
-                    {
+                    else if ((currentMillis - startVal) > 1400) {
                       flag_3B_reversed = false;
                       flag_3C_reversed = true;
                       B = true;
@@ -831,28 +708,20 @@ void loop()
                   }
                 }
               }
-              if (currentMove == 4 && B == false)
-              {
+              else if (currentMove == 4 && B == false) {
                 Stop();
                 flag_4B_reversed = true;
-
-                if (flag_4B_reversed == true)
-                {
+                if (flag_4B_reversed == true) {
                   currentMillis = millis();
-
-                  if (flag_4C_reversed == true) // start timer
-                  {
+                  if (flag_4C_reversed == true) {
                     startVal = currentMillis;
                     flag_4C_reversed = false;
                   }
-                  if (flag_4C_reversed == false)
-                  {
-                    if ((currentMillis - startVal) < 400) //turn right 90deg
-                    {
-                      turnRight(200);
+                  if (flag_4C_reversed == false) {
+                    if ((currentMillis - startVal) < 400) {
+                      turnRight(200); //turn right 90deg
                     }
-                    else if ((currentMillis - startVal) > 400)
-                    {
+                    else if ((currentMillis - startVal) > 400) {
                       flag_4B_reversed = false;
                       flag_4C_reversed = true;
                       B = true;
@@ -860,26 +729,20 @@ void loop()
                   }
                 }
               }
-              if (currentMove == 5 && B == false)
-              {
+              else if (currentMove == 5 && B == false) {
                 Stop();
                 flag_5B_reversed = true;
-                if (flag_5B_reversed == true)
-                {
+                if (flag_5B_reversed == true) {
                   currentMillis = millis();
-                  if (flag_5C_reversed == true) // start timer
-                  {
+                  if (flag_5C_reversed == true) {
                     startVal = currentMillis;
                     flag_5C_reversed = false;
                   }
-                  if (flag_5C_reversed == false)
-                  {
-                    if ((currentMillis - startVal) < 500) //turn left 90deg
-                    {
-                      turnLeft(200);
+                  if (flag_5C_reversed == false) {
+                    if ((currentMillis - startVal) < 500) {
+                      turnLeft(200); //turn left 90deg
                     }
-                    else if ((currentMillis - startVal) > 500)
-                    {
+                    else if ((currentMillis - startVal) > 500) {
                       flag_5B_reversed = false;
                       flag_5C_reversed = true;
                       B = true;
@@ -887,32 +750,23 @@ void loop()
                   }
                 }
               }
-              if (currentMove == 6 && B == false)
-              {
+              else if (currentMove == 6 && B == false) {
                 Stop();
-
                 flag_6B_reversed = true;
-
-                if (flag_6B_reversed == true)
-                {
+                if (flag_6B_reversed == true) {
                   currentMillis = millis();
-                  if (flag_6C_reversed == true) // start timer
-                  {
+                  if (flag_6C_reversed == true) {
                     startVal = currentMillis;
                     flag_6C_reversed = false;
                   }
-                  if (flag_6C_reversed == false)
-                  {
-                    if ((currentMillis - startVal) < 400) //turn left 90deg
-                    {
-                      turnLeft(200);
+                  if (flag_6C_reversed == false) {
+                    if ((currentMillis - startVal) < 400) {
+                      turnLeft(200); //turn left 90deg
                     }
-                    else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) //drive stright 0.4s
-                    {
-                      goForward(100);
+                    else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800)  {
+                      goForward(100); //drive stright 0.4s
                     }
-                    else if ((currentMillis - startVal) > 800)
-                    {
+                    else if ((currentMillis - startVal) > 800) {
                       flag_6B_reversed = false;
                       flag_6C_reversed = true;
                       B = true;
@@ -920,31 +774,23 @@ void loop()
                   }
                 }
               }
-              if (currentMove == 7 && B == false)
-              {
+              else if (currentMove == 7 && B == false) {
                 Stop();
                 flag_7B_reversed = true;
-
-                if (flag_7B_reversed == true)
-                {
+                if (flag_7B_reversed == true) {
                   currentMillis = millis();
-                  if (flag_6C_reversed == true) // start timer
-                  {
+                  if (flag_6C_reversed == true) {
                     startVal = currentMillis;
                     flag_7C_reversed = false;
                   }
-                  if (flag_7C_reversed == false)
-                  {
-                    if ((currentMillis - startVal) < 400) //turn right 90deg
-                    {
-                      turnRight(200);
+                  if (flag_7C_reversed == false) {
+                    if ((currentMillis - startVal) < 400) {
+                      turnRight(200); //turn right 90deg
                     }
-                    else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) //drive stright 0.4s
-                    {
-                      goForward(100);
+                    else if ((currentMillis - startVal) > 400 && (currentMillis - startVal) < 800) {
+                      goForward(100); //drive stright 0.4s
                     }
-                    else if ((currentMillis - startVal) > 800)
-                    {
+                    else if ((currentMillis - startVal) > 800) {
                       flag_7B_reversed = false;
                       flag_7C_reversed = true;
                       B = true;
@@ -952,30 +798,23 @@ void loop()
                   }
                 }
               }
-              if (currentMove == 8 && B == false)
-              {
+              else if (currentMove == 8 && B == false) {
                 Stop();
                 flag_8B_reversed = true;
-                if (flag_8B_reversed == true)
-                {
+                if (flag_8B_reversed == true) {
                   currentMillis = millis();
-                  if (flag_8C_reversed == true) // start timer
-                  {
+                  if (flag_8C_reversed == true) {
                     startVal = currentMillis;
                     flag_8C_reversed = false;
                   }
-                  if (flag_8C_reversed == false)
-                  {
-                    if ((currentMillis - startVal) < 800) //turn 180
-                    {
-                      turnRight(200);
+                  if (flag_8C_reversed == false) {
+                    if ((currentMillis - startVal) < 800) {
+                      turnRight(200); //turn 180
                     }
-                    else if ((currentMillis - startVal) > 800 && (currentMillis - startVal) < 1200) //go forward slightly
-                    {
-                      goForward(100);
+                    else if ((currentMillis - startVal) > 800 && (currentMillis - startVal) < 1200) {
+                      goForward(100); //go forward slightly
                     }
-                    else if ((currentMillis - startVal) > 1200)
-                    {
+                    else if ((currentMillis - startVal) > 1200) {
                       flag_8B_reversed = false;
                       flag_8C_reversed = true;
                       B = true;
@@ -983,22 +822,29 @@ void loop()
                   }
                 }
               }
-            }
-            if (stack_empty == true)
-            {
+            } // transversing
+            if (stack_empty == true) {
               ReturnHome();
-              if (!comm_flag)
-              {
+              if (!comm_flag) {
                 Phase2 = true;
                 Phase3 = false;
                 comm_flag = true;
               }
             }
             break;
-          }
-        }
-      }
-  }
+          } // if phase 3 is true
+        } // if Phase 1 is false
+      } // case 1
+  } // switch
+} // void loop()
+
+void saveMove(int m, unsigned long t)
+{
+  Movement T;
+  T.move = m;
+  T.time = t;
+  stack.push(T);
+  stackSize = stack.count();
 }
 
 // measure distance to target using ultrasonic sensor
@@ -1064,70 +910,36 @@ void Dump()
   servo_ScooperMotor.write(ci_Scooper_Arm_Down);
 }
 
-void ReturnHome ()
+void ReturnHome()
 {
-  if (IR_ON == true && ultrasonic4 > ul_back_D && IR1 == false) // Case 1: IR on, UL off. Drive backwards
-  {
-    goBackward(100);
+  if (IR_ON == true && ultrasonic4 > ul_back_D && IR1 == false) { // Case 1: IR on, UL off
+    goBackward(100); // Drive backwards
   }
-  else if (IR_ON == false && ultrasonic4 > ul_back_D && IR1 == false) //Case 2: IR OFF, UL off. Rotate 360
-  {
-    turnRight(200);
+  else if (IR_ON == false && ultrasonic4 > ul_back_D && IR1 == false) { //Case 2: IR OFF, UL off 
+    turnRight(200); //Rotate 360
   }
-  else if (IR_ON == false && ultrasonic4 <= ul_back_D && IR1 == false)// Case 3: IR OFF, UL on. Stop. Back up (go forward)
-  {
+  else if (IR_ON == false && ultrasonic4 <= ul_back_D && IR1 == false) { //Case 3: IR OFF, UL on
     IR1 = true;
   }
-
-  if (IR1 == true)
-  {
+  if (IR1 == true) {
     currentMillis = millis();
     IR2 = true;
-
-    if (IR2 == true) // start timer
-    {
+    if (IR2 == true) {
       startVal = currentMillis;
       IR2 = false;
     }
-    if (IR2 == false)
-    {
-      if ((currentMillis - startVal) < 800)
-      {
-        goForward(100);
+    if (IR2 == false) {
+      if ((currentMillis - startVal) < 800) {
+        goForward(100); // Back up (go forward)
       }
-      else if ((currentMillis - startVal) > 800)
-      {
+      else if ((currentMillis - startVal) > 800) {
         IR1 = false;
       }
     }
   }
-  else if (IR_ON == true && ultrasonic4 <= ul_back_D && IR1 == false) // Case 4 / Last step : IR on, UL on. Stop, Dump.
-  {
-    Stop();
-    Dump();
+  else if (IR_ON == true && ultrasonic4 <= ul_back_D && IR1 == false) { //Case 4(Last step): IR on, UL on
+    Stop(); //Stop
+    Dump(); //Dump
     comm_flag = false;
-  }
-}
-
-void Infrared()
-{
-  if (mySerial.available())
-  {
-    int x = mySerial.read();
-    if ((x >= 49 && x <= 51) || x == 66)
-    {
-      IR_ON = true;
-    }
-    else
-    {
-      IR_ON = false;
-    }
-    while (mySerial.available()) {
-      int trash = mySerial.read();
-    }
-  }
-  else
-  {
-    IR_ON = false;
   }
 }
