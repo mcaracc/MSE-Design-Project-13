@@ -1,0 +1,14 @@
+void ReturnHome()
+{
+  if (IR_ON == true && ultrasonic4 > ul_back_D && IR1 == false) { // Case 1: IR on, UL off
+    goBackward(100); // Drive backwards
+  }
+  else if (IR_ON == false && ultrasonic4 > ul_back_D && IR1 == false) { //Case 2: IR OFF, UL off
+    turnRight(200); //Rotate 360
+  }
+  else if (IR_ON == true && ultrasonic4 <= ul_back_D && IR1 == false) { //Case 3(Last step): IR on, UL on
+    Stop(); //Stop
+    Dump(); //Dump
+    comm_flag = false;
+  }
+}
