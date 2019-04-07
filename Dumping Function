@@ -1,5 +1,9 @@
 void Dump()
 {
-  servo_ScooperMotor.write(ci_Scooper_Arm_Up);
+  for (int i = ci_Scooper_Arm_Down; i < ci_Scooper_Arm_Up; i += 10)
+  {
+    delay(100);
+    servo_ScooperMotor.write(i);
+  }
   servo_ScooperMotor.write(ci_Scooper_Arm_Down);
 }
